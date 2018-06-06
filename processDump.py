@@ -22,10 +22,7 @@ def readInput():
 	input = f.read().splitlines()
 	return input
 
-def main():
-    data = loadData()
-    inputData = readInput()
-
+def createMatrix(data, inputData):
     resultMat = np.empty((len(data), len(inputData)), dtype = object)
     for i, host in enumerate(data):
         for j, inputProgram in enumerate(inputData):
@@ -34,6 +31,13 @@ def main():
                 if inputProgram in program:
                     tempList.append(program)
             resultMat[i][j] = tempList
+    return resultMat
+
+def main():
+    data = loadData()
+    inputData = readInput()
+    resultMat = createMatrix(data, inputData)
+    
     print resultMat
     return 0
 
