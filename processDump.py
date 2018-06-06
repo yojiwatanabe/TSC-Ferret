@@ -7,7 +7,7 @@ DUMP_FILE = 'pluginText.dump'
 INPUT_FILE = 'programs.txt'
 
 
-# 		loadData():()
+# 		loadData()
 #
 # Function to load JSON information from a file stream
 # Input  - none
@@ -19,12 +19,31 @@ def loadData():
     return rawData
 
 
+# 		readInput()
+#
+# Function to load JSON information from a file stream
+# Input  - none
+# Output - Python dictionary with data
 def readInput():
     f    = open(INPUT_FILE, 'r')
     data = f.read().splitlines()
     return data
 
 
+# 		createMatrix()
+#
+# Creates and populates a table containing software information about desired
+# software from given hosts
+# Input  - data: Host data dict object, dict with host IP, DNS, Repository, and
+#                Content
+#          inputData: List of programs to search for
+# Output - Numpy matrix object, where each row represents a different host, and
+#          each column represents a different software. This means matrix
+#          elements at row row index [i] will have software information about
+#          the host with ID = i + 1. Elements along column [j] will be lists of
+#          the software on line number j + 1 in the INPUT_FILE. E.G. if the
+#          second line of my input file is 'ssh', resultMat[0][1] will be all
+#          ssh programs installed on host with ID 1.
 def createMatrix(data, inputData):
     resultMat = np.empty((len(data), len(inputData)), dtype=object)
     for i, host in enumerate(data):
@@ -39,9 +58,9 @@ def createMatrix(data, inputData):
 
 
 def main():
-    data = loadData()
-    inputData = readInput()
-    resultMat = createMatrix(data, inputData)
+    data        = loadData()
+    inputData   = readInput()
+    resultMat   = createMatrix(data, inputData)
 
     print resultMat
     return 0
