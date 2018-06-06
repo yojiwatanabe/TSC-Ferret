@@ -34,8 +34,7 @@ for case in output:
 	temp_obj['REPO'] 	= case[u'repository'][u'name']
 	program_list 		= case[u'pluginText'].split("\n");
 	temp_obj['CONTENT'] = program_list[3:-1]
-
-	obj.append(temp_obj)
+	obj.append(temp_obj.copy())
 	case_num += 1
 
 ob = json.dumps(obj)
