@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import json
+import numpy as np
 
 DUMP_FILE = 'pluginText.dump'
 INPUT_FILE = 'programs.txt'
@@ -18,19 +19,22 @@ def loadData():
 
 def readInput():
 	f = open(INPUT_FILE, 'r')
-	inputList = []
-	temp = f.read().splitlines()
-	return temp
-
+	input = f.read().splitlines()
+	return input
 
 def main():
     data = loadData()
     inputData = readInput()
-    for host in data:
-        for program in host['CONTENT']:
-            for inputProgram in inputData:
+
+    resultMat = np.empty((len(data), len(inputData)), dtype = object)
+    for i, host in enumerate(data):
+        for j, inputProgram in enumerate(inputData):
+            tempList = []
+            for program in host['CONTENT']:
                 if inputProgram in program:
-                    print program
+                    tempList.append(program)
+            resultMat[i][j] = tempList
+    print resultMat
     return 0
 
 
