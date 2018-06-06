@@ -22,24 +22,19 @@ def readInput():
 	input = f.read().splitlines()
 	return input
 
-
 def main():
     data = loadData()
     inputData = readInput()
 
-    resultMat = np.matrix('', dtype=str)
-    resultMat = np.resize(resultMat, (len(data), len(inputData)))
+    resultMat = np.empty((len(data), len(inputData)), dtype = object)
     for i, host in enumerate(data):
         for j, inputProgram in enumerate(inputData):
             tempList = []
             for program in host['CONTENT']:
                 if inputProgram in program:
                     tempList.append(program)
-            resultMat.put([i, j], tempList)
-
-
-    print resultMat.flatten()
-
+            resultMat[i][j] = tempList
+    print resultMat
     return 0
 
 
