@@ -3,7 +3,7 @@
 import json
 
 DUMP_FILE = 'pluginText.dump'
-
+INPUT_FILE = 'programs.txt'
 
 # 		loadData():()
 #
@@ -17,9 +17,15 @@ def loadData():
 
     return rawData
 
+def readInput():
+	f = open(INPUT_FILE, 'r')
+	inputList = []
+	temp = f.read().splitlines()
+	return temp
 
 def main():
     data = loadData()
+    inputData = readInput()
 
     return 0
 
