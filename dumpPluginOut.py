@@ -26,16 +26,16 @@ output 		= sc.analysis(('pluginID', '=', '22869'), tool='vulndetails')
 case_num 	= 1
 total_cases = len(output)
 obj 		= []
-temp_obj 	= {'ID':'', 'IP':'', 'DNS':'', 'REPO':'', 'CONTENT':''}
+temp_obj 	= {'ID':'', 'IP':'', 'DNS':'', 'REPO':'', 'CONTENT':[]}
 for case in output:
 	temp_obj['ID'] 		= case_num
 	temp_obj['IP'] 		= case[u'ip']
 	temp_obj['DNS'] 	= case[u'dnsName']
 	temp_obj['REPO'] 	= case[u'repository'][u'name']
-	temp_obj['CONTENT'] = case[u'pluginText']
+	program_list 		= case[u'pluginText'].split("\n");
+	temp_obj['CONTENT'] = program_list[3:-1]
 
-	obj.append(json.dumps(temp_obj))
-	temp_obj.clear()
+	obj.append(temp_obj)
 	case_num += 1
 
 ob = json.dumps(obj)
