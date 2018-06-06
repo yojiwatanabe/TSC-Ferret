@@ -14,7 +14,6 @@ def loadData():
     f = open(DUMP_FILE, 'r')
     rawData = json.load(f)
     f.close()
-
     return rawData
 
 def readInput():
@@ -23,10 +22,15 @@ def readInput():
 	temp = f.read().splitlines()
 	return temp
 
+
 def main():
     data = loadData()
     inputData = readInput()
-
+    for host in data:
+        for program in host['CONTENT']:
+            for inputProgram in inputData:
+                if inputProgram in program:
+                    print program
     return 0
 
 
