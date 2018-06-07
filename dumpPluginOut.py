@@ -1,10 +1,14 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from securitycenter import SecurityCenter5
 import json
 import getpass
+import argparse
+from sys import exit
+from securitycenter import SecurityCenter5
 
-HOST = 'sec-center-prod-01.uit.tufts.edu'
+HOST         = 'sec-center-prod-01.uit.tufts.edu'
+OUTPUT_FILE  = 'pluginText.dump'
 
 
 # 		loginSC()
@@ -19,29 +23,39 @@ def loginSC():
     pw   = getpass.getpass()
     sc   = SecurityCenter5(HOST)
 
-    sc.login(user, pw)
+    try:
+        sc.login(user, pw)
+    except Exception as e:
+        print str(e)
+        exit(1)
     return sc
+
+
+parser = argparse.ArgumentParser(description = 'Helper script to retrieve \
+                                 plugin output from Service Center scans')
+parser.add_argument('pluginID', help = 'Plugin ID for the desired plugin output')
+args = parser.parse_args()
 
 
 # Establish connection, retrieve data
 sc = loginSC()
-output = sc.analysis(('pluginID', '=', '22869'), tool='vulndetails')
+output = sc.analysis(('pluginID', '=', args.pluginID), tool='vulndetails')
 
 # Build JSON structure with data retrieved
 case_num = 1
 obj = []
 temp_obj = {'ID': '', 'IP': '', 'DNS': '', 'REPO': '', 'CONTENT': []}
 for case in output:
-    program_list        = case[u'pluginText'].split("\n")
     temp_obj['ID']      = case_num
     temp_obj['IP']      = case[u'ip']
     temp_obj['DNS']     = case[u'dnsName']
     temp_obj['REPO']    = case[u'repository'][u'name']
-    temp_obj['CONTENT'] = program_list[3:-1]
+    temp_obj['CONTENT'] = case[u'pluginText'].split("\n")
+
     obj.append(temp_obj.copy())
     case_num += 1
 
 # Convert to JSON, write to file
 ob = json.dumps(obj)
-f = open('pluginText.dump', 'w')
+f = open(OUTPUT_FILE, 'w')
 f.write(ob)
