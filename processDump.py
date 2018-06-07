@@ -4,6 +4,7 @@ import json, csv
 import numpy as np
 import pandas as pd
 
+
 DUMP_FILE   = 'pluginText.dump'
 INPUT_FILE  = 'programs.txt'
 OUTPUT_FILE = 'results.html'
@@ -50,28 +51,48 @@ def createMatrix(data, inputData):
     resultMat = np.empty((len(data), len(inputData)), dtype=object)
     for i, host in enumerate(data):
         for j, inputProgram in enumerate(inputData):
-            tempList = ""
+            tempList = ''
             for program in host['CONTENT']:
                 if inputProgram in program:
-                    tempList += program + "<br>"
+                    tempList += program + '<br>'
 
             resultMat[i][j] = tempList
     return resultMat
 
 
-def writeToHTML(data, inputData):
-    pdFrame = pd.DataFrame(data, index=range(1,len(data) + 1), columns=inputData)
+def getHostInfo(hostData):
+    hostInfo = []
+    for host in hostData:
+        temp = str(host['DNS'] + '<br>' + host['IP'] + '<br>' + host['REPO'])
+        hostInfo.append(temp)
+
+    return hostInfo
+
+# 		writeToHTML()
+#
+# Writes the given numpy matrix to a table in a HTML file
+# Input  - data: Installed program information about each requested program. m rows by n columns, where each row is a
+#                host, and each column is a program that was specified to search for
+#          inputData: List of programs to search for
+# Output - none, out to file
+def writeToHTML(data, inputData, hostData):
+    hostFrame = pd.DataFrame(hostData, index=range(1,len(data) + 1), columns=['Host Info:'])
+    progFrame = pd.DataFrame(data, index=range(1,len(data) + 1), columns=inputData)
+
+    pdFrame = pd.concat([hostFrame, progFrame], axis=1)
     pd.set_option('display.max_colwidth', -1)
     pdFrame.to_html(OUTPUT_FILE, escape = False)
+
+    return
 
 
 def main():
     data        = loadData()
     inputData   = readInput()
     resultMat   = createMatrix(data, inputData)
-    writeToHTML(resultMat, inputData)
+    hostInfo    = getHostInfo(data)
+    writeToHTML(resultMat, inputData, hostInfo)
 
-    # print resultMat
     return 0
 
 

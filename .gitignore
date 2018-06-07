@@ -1,6 +1,7 @@
 # Program-specific output
 pluginText.dump
 programs.txt
+results.html
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
