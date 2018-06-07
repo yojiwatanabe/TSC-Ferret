@@ -29,6 +29,14 @@ def loginSC():
         exit(1)
     return sc
 
+
+# 		dumpPluginData()
+#
+# Function that defines the flow in dumpPlugin.py. It opens a connection to
+# Security Center, retrieves the information about the desired plugin, and
+# dumps it all to a .dump file.
+# Input  - pluginID, a string of the pluginID whose output is to be dumped
+# Output - none, write to file
 def dumpPluginData(pluginID):
     # Establish connection, retrieve data
     sc = loginSC()
