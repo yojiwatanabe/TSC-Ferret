@@ -12,10 +12,10 @@ parser.add_argument('pluginID', help = 'Plugin ID for the desired plugin output'
 parser.add_argument('-i', dest= 'iFile', help = 'Input file')
 args = parser.parse_args()
 
-dumpPluginOut.dumpPluginData(args.pluginID)
+#dumpPluginOut.dumpPluginData(args.pluginID)
 
 if args.iFile:
     processDump.createTable(args.pluginID, args.iFile)
 else:
-    processDump.createTable(args.pluginID)
+    processDump.createTable(args.pluginID, args.iFile)
 
