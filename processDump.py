@@ -59,16 +59,11 @@ def createMatrix(data, inputData):
             resultMat[i][j] = tempList
     return resultMat
 
-def convertToString(contentArray):
-    # print contentArray
-    for i, list in enumerate(contentArray):
-        list['CONTENT'] = '\n '.join(list['CONTENT'])
-    return contentArray
-
 
 def writeToHTML(data, inputData):
     pdFrame = pd.DataFrame(data, index=range(1,len(data) + 1), columns=inputData)
-    pdFrame.to_html('test.html')
+    pd.set_option('display.max_colwidth', -1)
+    pdFrame.to_html(OUTPUT_FILE)
 
 
 def main():
