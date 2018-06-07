@@ -1,6 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+# dumpPluginOut.py is responsible for getting the logging credential from the
+# user and get a token from the security center. After getting the token, it
+# uses the token to query information from the api. After getting the data, it 
+# partially parses it and stores it as a json file which is later processed by a
+# different module.
 
 import json
 import getpass
