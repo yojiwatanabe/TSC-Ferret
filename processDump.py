@@ -93,17 +93,10 @@ def writeToHTML(data, inputData, hostData):
 
     return
 
-
 def main():
     data        = loadData()
     inputData   = readInput()
     resultMat   = createMatrix(data, inputData)
     hostInfo    = getHostInfo(data)
+
     writeToHTML(resultMat, inputData, hostInfo)
-
-    return 0
-
-
-# # # # # # # # # # # # # # # # # # # # # # #
-if __name__ == '__main__':
-    main()
