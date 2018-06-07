@@ -1,6 +1,8 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import json, csv
+
+import json
 import numpy as np
 import pandas as pd
 
@@ -60,6 +62,11 @@ def createMatrix(data, inputData):
     return resultMat
 
 
+# 		getHostInfo()
+#
+# Returns information from the host in a pd.to_html friendly format (string)
+# Input  - hostData: Dictionary array with host info like DNS, IP, and REPO
+# Output - String array with all of the hosts' information
 def getHostInfo(hostData):
     hostInfo = []
     for host in hostData:
@@ -67,6 +74,7 @@ def getHostInfo(hostData):
         hostInfo.append(temp)
 
     return hostInfo
+
 
 # 		writeToHTML()
 #
