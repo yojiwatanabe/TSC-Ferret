@@ -1,6 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+# processDump.py reads in the file created by dumpPluginOut.py and creates a usable
+# matrix out of the data after searching for the queried data or without searching.
+# This matrix is then used to create a html table and is written to a html file. For
+# searching this file reads a file given by the user and makes one query out of a line
+# from the file. Then it compares the list with the data output from processDump.py
+# and gives us relavant data
 
 import json
 import numpy as np
