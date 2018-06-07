@@ -3,7 +3,6 @@
 
 import json
 import getpass
-import argparse
 from sys import exit
 from securitycenter import SecurityCenter5
 
@@ -30,32 +29,26 @@ def loginSC():
         exit(1)
     return sc
 
+def dumpPluginData(pluginID):
+    # Establish connection, retrieve data
+    sc = loginSC()
+    output = sc.analysis(('pluginID', '=', pluginID), tool='vulndetails')
 
-parser = argparse.ArgumentParser(description = 'Helper script to retrieve \
-                                 plugin output from Service Center scans')
-parser.add_argument('pluginID', help = 'Plugin ID for the desired plugin output')
-args = parser.parse_args()
+    # Build JSON structure with data retrieved
+    case_num = 1
+    obj = []
+    temp_obj = {'ID': '', 'IP': '', 'DNS': '', 'REPO': '', 'CONTENT': []}
+    for case in output:
+        temp_obj['ID']      = case_num
+        temp_obj['IP']      = case[u'ip']
+        temp_obj['DNS']     = case[u'dnsName']
+        temp_obj['REPO']    = case[u'repository'][u'name']
+        temp_obj['CONTENT'] = case[u'pluginText'].split("\n")
 
+        obj.append(temp_obj.copy())
+        case_num += 1
 
-# Establish connection, retrieve data
-sc = loginSC()
-output = sc.analysis(('pluginID', '=', args.pluginID), tool='vulndetails')
-
-# Build JSON structure with data retrieved
-case_num = 1
-obj = []
-temp_obj = {'ID': '', 'IP': '', 'DNS': '', 'REPO': '', 'CONTENT': []}
-for case in output:
-    temp_obj['ID']      = case_num
-    temp_obj['IP']      = case[u'ip']
-    temp_obj['DNS']     = case[u'dnsName']
-    temp_obj['REPO']    = case[u'repository'][u'name']
-    temp_obj['CONTENT'] = case[u'pluginText'].split("\n")
-
-    obj.append(temp_obj.copy())
-    case_num += 1
-
-# Convert to JSON, write to file
-ob = json.dumps(obj)
-f = open(OUTPUT_FILE, 'w')
-f.write(ob)
+    # Convert to JSON, write to file
+    ob = json.dumps(obj)
+    f = open(OUTPUT_FILE, 'w')
+    f.write(ob)
