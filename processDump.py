@@ -29,8 +29,8 @@ def loadData():
 # Function to load JSON information from a file stream
 # Input  - none
 # Output - Python dictionary with data
-def readInput():
-    f    = open(INPUT_FILE, 'r')
+def readInput(infile):
+    f    = open(infile, 'r')
     data = f.read().splitlines()
     return data
 
@@ -50,15 +50,25 @@ def readInput():
 #          second line of my input file is 'ssh', resultMat[0][1] will be all
 #          ssh programs installed on host with ID 1.
 def createMatrix(data, inputData):
-    resultMat = np.empty((len(data), len(inputData)), dtype=object)
-    for i, host in enumerate(data):
-        for j, inputProgram in enumerate(inputData):
-            tempList = ''
-            for program in host['CONTENT']:
-                if inputProgram.lower() in program.lower():
+    if inputData:
+        resultMat = np.empty((len(data), len(inputData)), dtype=object)
+    else:
+        resultMat = np.empty((len(data), 1), dtype=str)
+    if inputData:
+        for i, host in enumerate(data):
+            for j, inputProgram in enumerate(inputData):
+                tempList = ''
+                for program in host['CONTENT']:
+                    if inputProgram.lower() in program.lower():
+                        tempList += program + '<br>'
+                resultMat[i][j] = tempList
+    else:
+        for i, host in enumerate(data):
+            for j, inputProgram in enumerate(inputData):
+                tempList = ''
+                for program in host['CONTENT']:
                     tempList += program + '<br>'
-
-            resultMat[i][j] = tempList
+                resultMat[i][j] = tempList
     return resultMat
 
 
@@ -85,17 +95,21 @@ def getHostInfo(hostData):
 # Output - none, out to file
 def writeToHTML(data, inputData, hostData):
     hostFrame = pd.DataFrame(hostData, index=range(1,len(data) + 1), columns=['Host Info:'])
-    progFrame = pd.DataFrame(data, index=range(1,len(data) + 1), columns=inputData)
-
+    if inputData:
+        progFrame = pd.DataFrame(data, index=range(1,len(data) + 1), columns=inputData)
+    else:
+        progFrame = pd.DataFrame(data, index=range(1,len(data) + 1))
     pdFrame = pd.concat([hostFrame, progFrame], axis=1)
     pd.set_option('display.max_colwidth', -1)
     pdFrame.to_html(OUTPUT_FILE, escape = False)
 
     return
 
-def createTable():
+def createTable(pluginID, infile):
     data        = loadData()
-    inputData   = readInput()
+    inputData = ""
+    if infile:
+        inputData   = readInput(infile)
     resultMat   = createMatrix(data, inputData)
     hostInfo    = getHostInfo(data)
 
