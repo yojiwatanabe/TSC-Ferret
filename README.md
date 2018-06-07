@@ -7,12 +7,12 @@ User can specify the plugin they would wish to retrieve the scan data for. Certa
 
 ***
 
-#### Usage
+### Usage
 1. Enter your Tenable Security Center host URL in the `dumpPluginOut.py` `HOST` global variable
 2. Execute `run.py [-i I_FILE] PLUGIN_ID`, where `I_FILE` specifies an optional argument for a special query (explained below), and `PLUGIN_ID` is the desired plugin ID whose data will be retrieved.
 3. Open `results.html` in an internet browser to see your results
 
-#### Special Queries
+### Special Queries
 SoftwareCompare allows for special queries for certain plugins. This gives the user more control over how they wish to retrieve the plugin output. The plugins with special queries are:
 ##### Software Enumeration (SSH) - #22869
 * A text file (.txt) with newline separated words can be used to specify which programs to query. For example, if one was interested in the versions of `gcc`, `make`, and `python` running on the different hosts, the text file would look like:
@@ -22,7 +22,7 @@ make
 python
 ``` 
 
-#### Examples
+### Examples
 * Find all software running on hosts (plugin 22869):
 ```
 python run.py 22869
