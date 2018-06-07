@@ -1,4 +1,8 @@
 pandas
 numpy
+<<<<<<< HEAD
+pysecuritycenter
+=======
 securitycenter
 
+>>>>>>> f2377a9762d9714ba24f5c1b3b89466a441a66e5
