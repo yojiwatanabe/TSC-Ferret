@@ -1,10 +1,13 @@
 # -*- coding: utf-8 -*-
 
-import json
+import json, csv
 import numpy as np
+import pandas as pd
+import xlwings as xw
 
-DUMP_FILE = 'pluginText.dump'
-INPUT_FILE = 'programs.txt'
+DUMP_FILE   = 'pluginText.dump'
+INPUT_FILE  = 'programs.txt'
+OUTPUT_FILE = 'results.html'
 
 
 # 		loadData()
@@ -56,13 +59,25 @@ def createMatrix(data, inputData):
             resultMat[i][j] = tempList
     return resultMat
 
+def convertToString(contentArray):
+    # print contentArray
+    for i, list in enumerate(contentArray):
+        list['CONTENT'] = '\n '.join(list['CONTENT'])
+    return contentArray
+
+
+def writeToHTML(data, inputData):
+    pdFrame = pd.DataFrame(data, index=range(1,len(data) + 1), columns=inputData)
+    pdFrame.to_html('test.html')
+
 
 def main():
     data        = loadData()
     inputData   = readInput()
     resultMat   = createMatrix(data, inputData)
+    writeToHTML(resultMat, inputData)
 
-    print resultMat
+    # print resultMat
     return 0
 
 
