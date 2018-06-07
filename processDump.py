@@ -3,7 +3,6 @@
 import json, csv
 import numpy as np
 import pandas as pd
-import xlwings as xw
 
 DUMP_FILE   = 'pluginText.dump'
 INPUT_FILE  = 'programs.txt'
@@ -51,10 +50,10 @@ def createMatrix(data, inputData):
     resultMat = np.empty((len(data), len(inputData)), dtype=object)
     for i, host in enumerate(data):
         for j, inputProgram in enumerate(inputData):
-            tempList = []
+            tempList = ""
             for program in host['CONTENT']:
                 if inputProgram in program:
-                    tempList.append(program)
+                    tempList += program + "<br>"
 
             resultMat[i][j] = tempList
     return resultMat
@@ -63,7 +62,7 @@ def createMatrix(data, inputData):
 def writeToHTML(data, inputData):
     pdFrame = pd.DataFrame(data, index=range(1,len(data) + 1), columns=inputData)
     pd.set_option('display.max_colwidth', -1)
-    pdFrame.to_html(OUTPUT_FILE)
+    pdFrame.to_html(OUTPUT_FILE, escape = False)
 
 
 def main():
