@@ -5,10 +5,6 @@
 import json
 import numpy as np
 import pandas as pd
-import sys
-
-reload(sys)
-sys.setdefaultencoding('utf-8')
 
 DUMP_FILE   = 'pluginText.dump'
 INPUT_FILE  = 'programs.txt'
@@ -66,7 +62,6 @@ def createMatrix(data, inputData):
                         tempList += program + '<br>'
                 resultMat[i][j] = tempList
     else:
-        print 'no input!!!'
         for i, host in enumerate(data):
             tempList = ''
             for program in host['CONTENT']:
