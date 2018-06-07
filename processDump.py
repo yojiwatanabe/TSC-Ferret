@@ -55,7 +55,7 @@ def createMatrix(data, inputData):
         for j, inputProgram in enumerate(inputData):
             tempList = ''
             for program in host['CONTENT']:
-                if inputProgram in program:
+                if inputProgram.lower() in program.lower():
                     tempList += program + '<br>'
 
             resultMat[i][j] = tempList
