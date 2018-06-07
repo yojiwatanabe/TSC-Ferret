@@ -93,7 +93,7 @@ def writeToHTML(data, inputData, hostData):
 
     return
 
-def main():
+def createTable():
     data        = loadData()
     inputData   = readInput()
     resultMat   = createMatrix(data, inputData)
