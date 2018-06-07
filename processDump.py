@@ -5,7 +5,10 @@
 import json
 import numpy as np
 import pandas as pd
+import sys
 
+reload(sys)
+sys.setdefaultencoding('utf-8')
 
 DUMP_FILE   = 'pluginText.dump'
 INPUT_FILE  = 'programs.txt'
@@ -53,7 +56,7 @@ def createMatrix(data, inputData):
     if inputData:
         resultMat = np.empty((len(data), len(inputData)), dtype=object)
     else:
-        resultMat = np.empty((len(data), 1), dtype=str)
+        resultMat = np.empty((len(data), 1), dtype=object)
     if inputData:
         for i, host in enumerate(data):
             for j, inputProgram in enumerate(inputData):
@@ -63,12 +66,12 @@ def createMatrix(data, inputData):
                         tempList += program + '<br>'
                 resultMat[i][j] = tempList
     else:
+        print 'no input!!!'
         for i, host in enumerate(data):
-            for j, inputProgram in enumerate(inputData):
-                tempList = ''
-                for program in host['CONTENT']:
-                    tempList += program + '<br>'
-                resultMat[i][j] = tempList
+            tempList = ''
+            for program in host['CONTENT']:
+                tempList += program + '<br>'
+            resultMat[i] = tempList
     return resultMat
 
 
@@ -80,7 +83,7 @@ def createMatrix(data, inputData):
 def getHostInfo(hostData):
     hostInfo = []
     for host in hostData:
-        temp = str(host['DNS'] + '<br>' + host['IP'] + '<br>' + host['REPO'])
+        temp = (host['DNS'] + '<br>' + host['IP'] + '<br>' + host['REPO']).encode('utf-8')
         hostInfo.append(temp)
 
     return hostInfo
@@ -98,16 +101,16 @@ def writeToHTML(data, inputData, hostData):
     if inputData:
         progFrame = pd.DataFrame(data, index=range(1,len(data) + 1), columns=inputData)
     else:
-        progFrame = pd.DataFrame(data, index=range(1,len(data) + 1))
+        progFrame = pd.DataFrame(data, index=range(1,len(data) + 1), columns=['Plugin Output:'])
     pdFrame = pd.concat([hostFrame, progFrame], axis=1)
     pd.set_option('display.max_colwidth', -1)
     pdFrame.to_html(OUTPUT_FILE, escape = False)
 
     return
 
-def createTable(pluginID, infile):
+def createTable(pluginID, infile=''):
     data        = loadData()
-    inputData = ""
+    inputData = ''
     if infile:
         inputData   = readInput(infile)
     resultMat   = createMatrix(data, inputData)
