@@ -45,7 +45,7 @@ def readInput(infile):
     return data
 
 
-def specialCaseProcessing(data, inputData, pluginID):
+def specialCaseProcessing(data, inputData, resultMat, pluginID):
     if pluginID == SOFTWARE_ENUMERATION:
         for i, host in enumerate(data):
             for j, inputProgram in enumerate(inputData):
@@ -54,6 +54,8 @@ def specialCaseProcessing(data, inputData, pluginID):
                     if inputProgram.lower() in program.lower():
                         tempList += program + '<br>'
                 resultMat[i][j] = tempList
+
+    return resultMat
 
 
 # 		createMatrix()
@@ -72,7 +74,7 @@ def createMatrix(data, inputData, pluginID):
     else:
         resultMat = np.empty((len(data), 1), dtype=object)
     if inputData:           # TODO move this to another function that will handle special cases, also send the pluginID
-        specialCaseProcessing(data, inputData, pluginID)
+        resultMat = specialCaseProcessing(data, inputData, resultMat, pluginID)
     else:
         for i, host in enumerate(data):
             tempList = ''
@@ -96,6 +98,16 @@ def getHostInfo(hostData):
     return hostInfo
 
 
+def makeDataFrame(data, inputData, pluginID):
+    if inputData:
+        if pluginID == SOFTWARE_ENUMERATION:
+            progFrame = pd.DataFrame(data, index=range(1, len(data) + 1), columns=inputData)
+    else:
+        progFrame = pd.DataFrame(data, index=range(1, len(data) + 1), columns=['Plugin Output:'])
+
+    return progFrame
+
+
 # 		writeToHTML()
 #
 # Writes the given numpy matrix to a table in a HTML file
@@ -104,12 +116,10 @@ def getHostInfo(hostData):
 #          inputData: List of programs to search for
 #          hostData: List with host information
 # Output - none, out to file
-def writeToHTML(data, inputData, hostData):
+def writeToHTML(data, inputData, hostData, pluginID):
     hostFrame = pd.DataFrame(hostData, index=range(1, len(data) + 1), columns=['Host Info:'])
-    if inputData:
-        progFrame = pd.DataFrame(data, index=range(1, len(data) + 1), columns=inputData)
-    else:
-        progFrame = pd.DataFrame(data, index=range(1, len(data) + 1), columns=['Plugin Output:'])
+    progFrame = makeDataFrame(data, inputData, pluginID)
+
     pdFrame = pd.concat([hostFrame, progFrame], axis=1)
     pd.set_option('display.max_colwidth', -1)
     pdFrame.to_html(OUTPUT_FILE, escape=False)
@@ -129,10 +139,10 @@ def createTable(pluginID, infile=''):
     inputData = ''
 
     if infile:
-        inputData = readInput(infile) # TODO figure out how to more clearly handle special case
+        inputData = readInput(infile)
     resultMat = createMatrix(data, inputData, pluginID)
     hostInfo  = getHostInfo(data)
 
-    writeToHTML(resultMat, inputData, hostInfo)
+    writeToHTML(resultMat, inputData, hostInfo, pluginID)
 
     return
