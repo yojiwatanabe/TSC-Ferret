@@ -13,7 +13,6 @@ the processDump.py module.
 
 import json
 import getpass
-from sys import exit
 from securitycenter import SecurityCenter5
 
 HOST         = 'sec-center-prod-01.uit.tufts.edu'
@@ -32,11 +31,7 @@ def loginSC():
     pw   = getpass.getpass()
     sc   = SecurityCenter5(HOST)
 
-    try:
-        sc.login(user, pw)
-    except Exception as e:
-        print str(e)
-        exit(1)
+    sc.login(user, pw)
     return sc
 
 
