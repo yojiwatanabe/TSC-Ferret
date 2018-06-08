@@ -35,23 +35,13 @@ def loginSC():
     return sc
 
 
-# 		dumpPluginData()
-#
-# Function that defines the flow in dumpPlugin.py. It opens a connection to
-# Security Center, retrieves the information about the desired plugin, and
-# dumps it all to a .dump file.
-# Input  - pluginID, a string of the pluginID whose output is to be dumped
-# Output - none, write to file
-def dumpPluginData(pluginID):
-    # Establish connection, retrieve data
-    sc = loginSC()
-    output = sc.analysis(('pluginID', '=', pluginID), tool='vulndetails')
-
-    # Build JSON structure with data retrieved
+def dumpDataRepoQuery(repolist, output):
     case_num = 1
     obj = []
     temp_obj = {'ID': '', 'IP': '', 'DNS': '', 'REPO': '', 'CONTENT': []}
     for case in output:
+        if case[u'repository'][u'name'] not in repolist:
+            pass
         temp_obj['ID']      = case_num
         temp_obj['IP']      = case[u'ip']
         temp_obj['DNS']     = case[u'dnsName']
@@ -61,6 +51,63 @@ def dumpPluginData(pluginID):
 
         obj.append(temp_obj.copy())
         case_num += 1
+
+    return obj
+
+
+def dumpDataHostQuery(hostlist, output):
+    case_num = 1
+    obj = []
+    temp_obj = {'ID': '', 'IP': '', 'DNS': '', 'REPO': '', 'CONTENT': []}
+    for case in output:
+        if case[u'ip'] not in hostlist:
+            pass
+        temp_obj['ID']      = case_num
+        temp_obj['IP']      = case[u'ip']
+        temp_obj['DNS']     = case[u'dnsName']
+        temp_obj['REPO']    = case[u'repository'][u'name']
+        temp_obj['L_SEEN']  = case[u'lastSeen']
+        temp_obj['CONTENT'] = case[u'pluginText'].split("\n")
+
+        obj.append(temp_obj.copy())
+        case_num += 1
+
+    return obj
+
+
+# 		dumpPluginData()
+#
+# Function that defines the flow in dumpPlugin.py. It opens a connection to
+# Security Center, retrieves the information about the desired plugin, and
+# dumps it all to a .dump file.
+# Input  - pluginID, a string of the pluginID whose output is to be dumped
+# Output - none, write to file
+def dumpPluginData(pluginID, repoList, hostList):
+    # Establish connection, retrieve data
+    sc = loginSC()
+    output = sc.analysis(('pluginID', '=', pluginID), tool='vulndetails')
+
+    if repoList:
+        f = open(repoList, 'r')
+        obj = dumpDataRepoQuery(f.read(), output)
+    elif hostList:
+        f = open(repoList, 'r')
+        obj = dumpDataHostQuery(f.read(), output)
+    else:
+        # Build JSON structure with data retrieved
+        case_num = 1
+        obj = []
+        temp_obj = {'ID': '', 'IP': '', 'DNS': '', 'REPO': '', 'CONTENT': []}
+        for case in output:
+            temp_obj['ID']      = case_num
+            temp_obj['IP']      = case[u'ip']
+            temp_obj['DNS']     = case[u'dnsName']
+            temp_obj['REPO']    = case[u'repository'][u'name']
+            temp_obj['L_SEEN']  = case[u'lastSeen']
+            temp_obj['CONTENT'] = case[u'pluginText'].split("\n")
+
+            obj.append(temp_obj.copy())
+            case_num += 1
 
     # Convert to JSON, write to file
     ob = json.dumps(obj)
