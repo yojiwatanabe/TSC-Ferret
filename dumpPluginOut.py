@@ -41,7 +41,7 @@ def dumpDataRepoQuery(repolist, output):
     temp_obj = {'ID': '', 'IP': '', 'DNS': '', 'REPO': '', 'CONTENT': []}
     for case in output:
         if case[u'repository'][u'name'] not in repolist:
-            pass
+            continue
         temp_obj['ID']      = case_num
         temp_obj['IP']      = case[u'ip']
         temp_obj['DNS']     = case[u'dnsName']
@@ -61,7 +61,7 @@ def dumpDataHostQuery(hostlist, output):
     temp_obj = {'ID': '', 'IP': '', 'DNS': '', 'REPO': '', 'CONTENT': []}
     for case in output:
         if case[u'ip'] not in hostlist:
-            pass
+            continue
         temp_obj['ID']      = case_num
         temp_obj['IP']      = case[u'ip']
         temp_obj['DNS']     = case[u'dnsName']
