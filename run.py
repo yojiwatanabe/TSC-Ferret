@@ -5,10 +5,10 @@
 # arguments and calls all of the other modules. There is one positional
 # argument that this file takes and one optional should follow -i
 
-import sys
 import argparse
 import dumpPluginOut
 import processDump
+from sys import exit
 
 
 parser = argparse.ArgumentParser(description = 'Helper script to retrieve \
@@ -20,5 +20,8 @@ try:
 	dumpPluginOut.dumpPluginData(args.pluginID)
 	processDump.createTable(args.pluginID, args.iFile)
 except Exception as e:
-	print str(e).decode('utf-8').encode('ascii')
+	print 'ERROR CODE [' + str(e.code) + ']:'
+	print e.msg.encode('ascii')
+	exit(e.code)
 
+print "done"
