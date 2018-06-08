@@ -10,6 +10,7 @@ import argparse
 import dumpPluginOut
 import processDump
 
+
 parser = argparse.ArgumentParser(description = 'Helper script to retrieve \
                                  plugin output from Service Center scans')
 parser.add_argument('pluginID', help = 'Plugin ID for the desired plugin output')
