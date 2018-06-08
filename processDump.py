@@ -3,20 +3,23 @@
 
 '''
 processDump.py
-This module reads in the file created by dumpPluginOut.py and creates a usable
-matrix out of the data after searching for the queried data or without searching.
-This matrix is then used to create a html table and is written to a html file. For
-searching this file reads a file given by the user and makes one query out of a line
-from the file. Then it compares the list with the data output from processDump.py
-and gives us relavant data
+This module reads in the file created by dumpPluginOut.py and creates a usable matrix out of the data after searching
+for the queried data or without searching. This matrix is then used to create a html table and is written to a html
+file. For searching this file reads a file given by the user and makes one query out of a line from the file. Then it
+compares the list with the data output from processDump.py and gives us relevant data
 '''
+
 
 import json
 import numpy as np
 import pandas as pd
 
+
 DUMP_FILE   = 'pluginText.dump'
 OUTPUT_FILE = 'results.html'
+
+# Plugin IDs for the special cases that are supported
+SOFTWARE_ENUMERATION = '22869'
 
 
 # 		loadData()
@@ -42,6 +45,17 @@ def readInput(infile):
     return data
 
 
+def specialCaseProcessing(data, inputData, pluginID):
+    if pluginID == SOFTWARE_ENUMERATION:
+        for i, host in enumerate(data):
+            for j, inputProgram in enumerate(inputData):
+                tempList = ''
+                for program in host['CONTENT']:
+                    if inputProgram.lower() in program.lower():
+                        tempList += program + '<br>'
+                resultMat[i][j] = tempList
+
+
 # 		createMatrix()
 #
 # Creates and populates a table containing software information about desired software from given hosts
@@ -52,19 +66,13 @@ def readInput(infile):
 #          ID = i + 1. Elements along column [j] will be lists of the software on line number j + 1 in input_file.
 #          E.G. if the second line of my input file is 'ssh', resultMat[0][1] will be all ssh programs installed on host
 #          with ID 1.
-def createMatrix(data, inputData):
+def createMatrix(data, inputData, pluginID):
     if inputData:
         resultMat = np.empty((len(data), len(inputData)), dtype=object)
     else:
         resultMat = np.empty((len(data), 1), dtype=object)
     if inputData:           # TODO move this to another function that will handle special cases, also send the pluginID
-        for i, host in enumerate(data):
-            for j, inputProgram in enumerate(inputData):
-                tempList = ''
-                for program in host['CONTENT']:
-                    if inputProgram.lower() in program.lower():
-                        tempList += program + '<br>'
-                resultMat[i][j] = tempList
+        specialCaseProcessing(data, inputData, pluginID)
     else:
         for i, host in enumerate(data):
             tempList = ''
@@ -122,7 +130,9 @@ def createTable(pluginID, infile=''):
 
     if infile:
         inputData = readInput(infile) # TODO figure out how to more clearly handle special case
-    resultMat = createMatrix(data, inputData)
+    resultMat = createMatrix(data, inputData, pluginID)
     hostInfo  = getHostInfo(data)
 
     writeToHTML(resultMat, inputData, hostInfo)
+
+    return
