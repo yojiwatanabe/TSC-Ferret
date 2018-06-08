@@ -61,6 +61,7 @@ def dumpPluginData(pluginID):
         temp_obj['IP']      = case[u'ip']
         temp_obj['DNS']     = case[u'dnsName']
         temp_obj['REPO']    = case[u'repository'][u'name']
+        temp_obj['L_SEEN']  = case[u'lastSeen']
         temp_obj['CONTENT'] = case[u'pluginText'].split("\n")
 
         obj.append(temp_obj.copy())

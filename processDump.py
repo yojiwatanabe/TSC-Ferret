@@ -11,6 +11,7 @@ compares the list with the data output from processDump.py and gives us relevant
 
 
 import json
+import time
 import numpy as np
 import pandas as pd
 
@@ -92,7 +93,8 @@ def createMatrix(data, inputData, pluginID):
 def getHostInfo(hostData):
     hostInfo = []
     for host in hostData:
-        temp = (host['DNS'] + '<br>' + host['IP'] + '<br>' + host['REPO']).encode('utf-8')
+        temp = ('DNS: ' + host['DNS'] + '<br>' + 'IP: ' + host['IP'] + '<br>' + 'Repository: ' + host['REPO'] + '<br>'
+                + 'Last seen: ' + time.ctime(float(host['L_SEEN']))).encode('utf-8')
         hostInfo.append(temp)
 
     return hostInfo
