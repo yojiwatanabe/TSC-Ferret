@@ -16,7 +16,9 @@ parser = argparse.ArgumentParser(description = 'Helper script to retrieve \
 parser.add_argument('pluginID', help = 'Plugin ID for the desired plugin output')
 parser.add_argument('-i', dest= 'iFile', help = 'Input file')
 args = parser.parse_args()
-
-dumpPluginOut.dumpPluginData(args.pluginID)
-processDump.createTable(args.pluginID, args.iFile)
+try:
+	dumpPluginOut.dumpPluginData(args.pluginID)
+	processDump.createTable(args.pluginID, args.iFile)
+except Exception as e:
+	print str(e).decode('utf-8').encode('ascii')
 
