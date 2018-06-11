@@ -1,18 +1,18 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-'''
-emailResults.py
+"""
+email_results.py
 
 This module works to email the results of the plugin output query. It is able to read the recipients list from a file
 as well as read in from the command line. It uses an SMTP server to send out each message attached with the results
 table created from the last query.
-'''
+"""
 
-#       getRecipients()
+#       get_recipients()
 #
 #
-def getRecipients():
+def get_recipients():
     # try to find a file with email addresses
     # if file doesnt exist or is empty,
         # read in addresses manually
@@ -21,7 +21,7 @@ def getRecipients():
     # have user confirm, allow them to go back and edit
 
 
-def messageSetup():
+def message_setup():
     # function to create the message that will be sent
 
     # get sender
