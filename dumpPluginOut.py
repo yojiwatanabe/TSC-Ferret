@@ -91,7 +91,7 @@ def dumpPluginData(pluginID, repoList, hostList):
         f = open(repoList, 'r')
         obj = dumpDataRepoQuery(f.read(), output)
     elif hostList:
-        f = open(repoList, 'r')
+        f = open(hostList, 'r')
         obj = dumpDataHostQuery(f.read(), output)
     else:
         # Build JSON structure with data retrieved
@@ -101,6 +101,7 @@ def dumpPluginData(pluginID, repoList, hostList):
         for case in output:
             temp_obj['ID']      = case_num
             temp_obj['IP']      = case[u'ip']
+            temp_obj['MAC']     = case[u'macAddress']
             temp_obj['DNS']     = case[u'dnsName']
             temp_obj['REPO']    = case[u'repository'][u'name']
             temp_obj['L_SEEN']  = case[u'lastSeen']

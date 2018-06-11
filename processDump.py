@@ -93,8 +93,11 @@ def createMatrix(data, inputData, pluginID):
 def getHostInfo(hostData):
     hostInfo = []
     for host in hostData:
-        temp = ('DNS: ' + host['DNS'] + '<br>' + 'IP: ' + host['IP'] + '<br>' + 'Repository: ' + host['REPO'] + '<br>'
-                + 'Last seen: ' + time.ctime(float(host['L_SEEN']))).encode('utf-8')
+        temp = ('DNS: ' + host['DNS'] +
+                '<br>IP: ' + host['IP'] +
+                '<br>Repository: ' + host['REPO'] +
+                '<br>MAC Address: ' + host['MAC'] +
+                '<br>Last seen: ' + time.ctime(float(host['L_SEEN']))).encode('utf-8')
         hostInfo.append(temp)
 
     return hostInfo
