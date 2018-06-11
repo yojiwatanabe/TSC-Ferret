@@ -44,6 +44,7 @@ def dumpDataRepoQuery(repolist, output):
             continue
         temp_obj['ID']      = case_num
         temp_obj['IP']      = case[u'ip']
+        temp_obj['MAC'] = case[u'macAddress']
         temp_obj['DNS']     = case[u'dnsName']
         temp_obj['REPO']    = case[u'repository'][u'name']
         temp_obj['L_SEEN']  = case[u'lastSeen']
@@ -64,6 +65,7 @@ def dumpDataHostQuery(hostlist, output):
             continue
         temp_obj['ID']      = case_num
         temp_obj['IP']      = case[u'ip']
+        temp_obj['MAC'] = case[u'macAddress']
         temp_obj['DNS']     = case[u'dnsName']
         temp_obj['REPO']    = case[u'repository'][u'name']
         temp_obj['L_SEEN']  = case[u'lastSeen']
