@@ -19,9 +19,6 @@ import pandas as pd
 DUMP_FILE   = 'pluginText.dump'
 OUTPUT_FILE = 'results.html'
 
-# Plugin IDs for the special cases that are supported
-SOFTWARE_ENUMERATION = '22869'
-
 
 # 		loadData()
 #
@@ -46,15 +43,16 @@ def readInput(infile):
     return data
 
 
-def specialCaseProcessing(data, inputData, resultMat, pluginID):
-    if pluginID == SOFTWARE_ENUMERATION:
-        for i, host in enumerate(data):
-            for j, inputProgram in enumerate(inputData):
-                tempList = ''
-                for program in host['CONTENT']:
-                    if inputProgram.lower() in program.lower():
-                        tempList += program + '<br>'
-                resultMat[i][j] = tempList
+def searchableMode(data, inputData, resultMat):
+    for i, host in enumerate(data):
+        for j, inputLine in enumerate(inputData):
+            tempList = ''
+            for line in host['CONTENT']:
+                if inputLine.lower() in line.lower():
+                    tempList += line + '<br>'
+            if tempList == '':
+                tempList = 'Query \'' + inputLine + '\' not found'
+            resultMat[i][j] = tempList
 
     return resultMat
 
@@ -74,8 +72,8 @@ def createMatrix(data, inputData, pluginID):
         resultMat = np.empty((len(data), len(inputData)), dtype=object)
     else:
         resultMat = np.empty((len(data), 1), dtype=object)
-    if inputData:           # TODO move this to another function that will handle special cases, also send the pluginID
-        resultMat = specialCaseProcessing(data, inputData, resultMat, pluginID)
+    if inputData:
+        resultMat = searchableMode(data, inputData, resultMat)
     else:
         for i, host in enumerate(data):
             tempList = ''
@@ -105,8 +103,7 @@ def getHostInfo(hostData):
 
 def makeDataFrame(data, inputData, pluginID):
     if inputData:
-        if pluginID == SOFTWARE_ENUMERATION:
-            progFrame = pd.DataFrame(data, index=range(1, len(data) + 1), columns=inputData)
+        progFrame = pd.DataFrame(data, index=range(1, len(data) + 1), columns=inputData)
     else:
         progFrame = pd.DataFrame(data, index=range(1, len(data) + 1), columns=['Plugin Output:'])
 
