@@ -4,11 +4,10 @@
 '''
 dumpPluginOut.py
 
-This module is responsible for getting the logging credential from the
-user and get a token from the security center. After getting the token, it
-uses the token to query information from the api. After getting the data, it
-partially parses it and stores it as a json file which is later processed by
-the processDump.py module.
+This module works with Tenable Security Center's RESTful APIs to retrieve information about system scans. User is asked
+to authenticate their session, after which they are able to get the plugin output from scans performed on hosts. This
+module simply retrieves the data and saves it into 'pluginText.dump', after which it is processed by the 'processDump'
+module and made human-friendly.ß
 '''
 
 import json
@@ -21,11 +20,10 @@ OUTPUT_FILE  = 'pluginText.dump'
 
 # 		loginSC()
 #
-# Function to open a connection with the specified Security Center 5 host. Asks
-# user for their login information and then proceeds to try to establish an 
-# authenticated connection.
+# Function to open a connection with the specified Security Center 5 host. Asks user for their login information and
+# then proceeds to try to establish an authenticated connection.
 # Input  - none
-# Output - SecurityCenter5 object of an authenticated connection
+# Output - Authenticated SecurityCenter5 object
 def loginSC():
     user = raw_input("Username: ")
     pw   = getpass.getpass()
@@ -35,12 +33,18 @@ def loginSC():
     return sc
 
 
-def dumpDataRepoQuery(repolist, output):
+# 		dumpDataRepoQuery()
+#
+# Function to save all queried information for hosts in a specified repository/repositories
+# Input  - repolist: string list with repositories to include in output
+#          output: dictionary list with the plugin output from all hosts/repos with host information
+# Output - dictionary list with the plugin output of hosts in the specified repository
+def dumpDataRepoQuery(repoList, output):
     case_num = 1
     obj = []
     temp_obj = {'ID': '', 'IP': '', 'DNS': '', 'REPO': '', 'CONTENT': []}
     for case in output:
-        if case[u'repository'][u'name'] not in repolist:
+        if case[u'repository'][u'name'] not in repoList:
             continue
         temp_obj['ID']      = case_num
         temp_obj['IP']      = case[u'ip']
@@ -56,16 +60,22 @@ def dumpDataRepoQuery(repolist, output):
     return obj
 
 
-def dumpDataHostQuery(hostlist, output):
+# 		dumpDataHostQuery()
+#
+# Function to save all queried information for the specified host/hosts
+# Input  - hostlist: string list with IP addresses of hosts to include in output
+#          output: dictionary list with the plugin output from all hosts/repos with host information
+# Output - dictionary list with the plugin output of hosts within the defined IP address range
+def dumpDataHostQuery(hostList, output):
     case_num = 1
     obj = []
     temp_obj = {'ID': '', 'IP': '', 'DNS': '', 'REPO': '', 'CONTENT': []}
     for case in output:
-        if case[u'ip'] not in hostlist:
+        if case[u'ip'] not in hostList:
             continue
         temp_obj['ID']      = case_num
         temp_obj['IP']      = case[u'ip']
-        temp_obj['MAC'] = case[u'macAddress']
+        temp_obj['MAC']     = case[u'macAddress']
         temp_obj['DNS']     = case[u'dnsName']
         temp_obj['REPO']    = case[u'repository'][u'name']
         temp_obj['L_SEEN']  = case[u'lastSeen']
@@ -77,6 +87,13 @@ def dumpDataHostQuery(hostlist, output):
     return obj
 
 
+# 		dumpDataIPrange()
+#
+# Function to save all queried information that falls within the range of IPs
+# Input  - ipMin: lower IP address boundary
+#          ipMax: upper IP address boundary
+#          output: dictionary list with the plugin output from all hosts/repos with host information
+# Output - dictionary list with the plugin output of hosts within the defined IP address range
 def dumpDataIPrange(ipMin, ipMax, output):
     case_num = 1
     obj = []
@@ -100,9 +117,8 @@ def dumpDataIPrange(ipMin, ipMax, output):
 
 # 		dumpPluginData()
 #
-# Function that defines the flow in dumpPlugin.py. It opens a connection to
-# Security Center, retrieves the information about the desired plugin, and
-# dumps it all to a .dump file.
+# Function that defines the flow in dumpPlugin.py. It opens a connection to Security Center, retrieves the information
+# about the desired plugin, and dumps it all to a .dump file.
 # Input  - pluginID, a string of the pluginID whose output is to be dumped
 # Output - none, write to file
 def dumpPluginData(pluginID, repoList, hostList, ipRange):
