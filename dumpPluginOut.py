@@ -77,6 +77,27 @@ def dumpDataHostQuery(hostlist, output):
     return obj
 
 
+def dumpDataIPrange(ipMin, ipMax, output):
+    case_num = 1
+    obj = []
+    temp_obj = {'ID': '', 'IP': '', 'DNS': '', 'REPO': '', 'CONTENT': []}
+    for case in output:
+        if case[u'ip'] < ipMin or case[u'ip'] > ipMax:
+            continue
+        temp_obj['ID']      = case_num
+        temp_obj['IP']      = case[u'ip']
+        temp_obj['MAC'] = case[u'macAddress']
+        temp_obj['DNS']     = case[u'dnsName']
+        temp_obj['REPO']    = case[u'repository'][u'name']
+        temp_obj['L_SEEN']  = case[u'lastSeen']
+        temp_obj['CONTENT'] = case[u'pluginText'].split("\n")
+
+        obj.append(temp_obj.copy())
+        case_num += 1
+
+    return obj
+
+
 # 		dumpPluginData()
 #
 # Function that defines the flow in dumpPlugin.py. It opens a connection to
@@ -84,7 +105,7 @@ def dumpDataHostQuery(hostlist, output):
 # dumps it all to a .dump file.
 # Input  - pluginID, a string of the pluginID whose output is to be dumped
 # Output - none, write to file
-def dumpPluginData(pluginID, repoList, hostList):
+def dumpPluginData(pluginID, repoList, hostList, ipRange):
     # Establish connection, retrieve data
     sc = loginSC()
     output = sc.analysis(('pluginID', '=', pluginID), tool='vulndetails')
@@ -95,6 +116,9 @@ def dumpPluginData(pluginID, repoList, hostList):
     elif hostList:
         f = open(hostList, 'r')
         obj = dumpDataHostQuery(f.read(), output)
+    elif ipRange:
+        [ipMin, ipMax] = ipRange.split('-')
+        obj = dumpDataIPrange(ipMin, ipMax, output)
     else:
         # Build JSON structure with data retrieved
         case_num = 1

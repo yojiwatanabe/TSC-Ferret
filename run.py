@@ -13,10 +13,12 @@ from sys import exit
 
 def initiateArgParse():
     parser = argparse.ArgumentParser(description='Helper script to retrieve plugin output from Service Center scans')
-    parser.add_argument('pluginID', help='Plugin ID for the desired plugin output')
-    parser.add_argument('-s', dest='search_list', help='Input file for words to query output')
-    parser.add_argument('-R', dest='repo_list', help='Input file for repositories to query')
-    parser.add_argument('-H', dest='host_list', help='Input file for hosts to query')
+    parser.add_argument('pluginID',                    help='Plugin ID for the desired plugin output')
+    parser.add_argument('-s', dest='search_list',      help='Input file for words to query output (e.g. -s queries.txt)')
+    parser.add_argument('-R', dest='repo_list',        help='Input file for repositories to query (e.g. -R repos.txt)')
+    parser.add_argument('-H', dest='host_list',        help='Input file for hosts to query (e.g. -H hosts.txt)')
+    parser.add_argument('--ip_range', dest='ip_range', help='Range of IPs from which to gather data (e.g. --ip_range '
+                                                            '127.0.0.1-192.168.0.1)')
 
     return parser.parse_args()
 
@@ -25,7 +27,7 @@ def main():
     args = initiateArgParse()
 
     try:
-        dumpPluginOut.dumpPluginData(args.pluginID, args.repo_list, args.host_list)
+        dumpPluginOut.dumpPluginData(args.pluginID, args.repo_list, args.host_list, args.ip_range)
         processDump.createTable(args.pluginID, args.search_list)
     except Exception as e:
         try:
