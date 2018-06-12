@@ -1,4 +1,4 @@
-# TenableSecurityCenterSearch
+# Tenable Security Center Search
 #### Yoji Watanabe & Saurav Gyawali
 ###### Summer 2018
 Using Tenable Security Center's API, retrieve plugin output from scanned hosts to be saved in a human-friendly format (HTML table). Requires a valid Tenable Security Center account.
@@ -9,11 +9,11 @@ User can specify the plugin they would wish to retrieve the scan data for. User 
 
 ### Usage
 1. Enter your Tenable Security Center host URL in the `dumpPluginOut.py` `HOST` global variable
-2. Execute `run.py [-s SEARCH_LIST] [-R REPO_LIST] [-H HOST_LIST] [--ip_range IP_RANGE] PLUGIN_ID`, where `PLUGIN_ID` is the desired plugin ID whose data will be retrieved and `SEARH_LIST` is the name of the file containing search queries. All the other arguments are for filtering the output table
+2. Execute `python run.py [-s SEARCH_LIST] [-R REPO_LIST] [-H HOST_LIST] [--ip_range IP_RANGE] PLUGIN_ID`, where `PLUGIN_ID` is the desired plugin ID whose data will be retrieved and `SEARH_LIST` is the name of the file containing search queries. All the other arguments are for filtering the output table
 3. Open `results.html` in an internet browser to see your results
 
 ### Search Queries
-TenableSecurityCenterSearch allows for special queries for all plugins. This gives the user more control over how they wish to retrieve the plugin output. A text file (.txt) with newline separated words can be used to specify which word to query. For example, if one was interested in `gcc`, `make`, and `python` on different hosts, the text file would look like:
+Tenable Security Center Search allows for special queries for all plugins. This gives the user more control over how they wish to retrieve the plugin output. A text file (.txt) with newline separated words can be used to specify which word to query. For example, if one was interested in `gcc`, `make`, and `python` on different hosts, the text file would look like:
 ```
 gcc
 make
