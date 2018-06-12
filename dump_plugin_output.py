@@ -17,7 +17,7 @@ from securitycenter import SecurityCenter5
 
 HOST = 'sec-center-prod-01.uit.tufts.edu'
 OUTPUT_FILE = 'pluginText.dump'
-
+IP_LENGTH = 4
 
 # 		login_sc()
 #
@@ -87,6 +87,22 @@ def dump_data_host_query(host_list, output):
 
     return obj
 
+#       in_ip_range()
+# Function to check if the given ip address is inside 
+def in_ip_range(ip_min, ip_max, ip):
+    list_min = map(int, ip_min.split('.'))
+    list_max = map(int, ip_max.split('.'))
+
+    # Checking if the format is valid
+    if (len(list_min) != IP_LENGTH or len(list_max) != IP_LENGTH):
+        raise Exception('IP address in unknown format')
+
+    for i in range (IP_LENGTH):
+        if (ip > list_min[i] and ip < list_max[i]):
+           return True
+        elif (ip < list_min[i] or ip > list_max[i]):
+            return False
+    return True
 
 # 		dump_data_ip_range()
 #
