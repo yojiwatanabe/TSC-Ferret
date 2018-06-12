@@ -24,7 +24,7 @@ OUTPUT_FILE = 'pluginText.dump'
 # Function to open a connection with the specified Security Center 5 host. Asks user for their login information and
 # then proceeds to try to establish an authenticated connection.
 # Input  - none
-# Output - Authenticated SecurityCenter5 object
+# Output - authenticated SecurityCenter5 object
 def login_sc():
     user = raw_input("Username: ")
     pw = getpass.getpass()
@@ -130,12 +130,15 @@ def dump_plugin_data(plugin_id, repo_list, host_list, ip_range):
     if repo_list:
         f = open(repo_list, 'r')
         obj = dump_data_repo_query(f.read(), output)
+
     elif host_list:
         f = open(host_list, 'r')
         obj = dump_data_host_query(f.read(), output)
+
     elif ip_range:
         [ip_min, ip_max] = ip_range.split('-')
         obj = dump_data_ip_range(ip_min, ip_max, output)
+
     else:
         # Build JSON structure with data retrieved
         case_num = 1

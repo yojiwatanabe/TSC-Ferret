@@ -43,6 +43,13 @@ def read_input(infile):
     return data
 
 
+#       searchableMode()
+#
+# Function to search through the plugin output data for the user-supplied queries.
+# Input  - data : string list of plugin output data to search through
+#          input_data : string list of queries to look for in plugin data
+#          result_mat : numpy matrix where matching queries will be stored
+# Output - numpy matrix with matching queries
 def searchable_mode(data, input_data, result_mat):
     for i, host in enumerate(data):
         for j, input_line in enumerate(input_data):
