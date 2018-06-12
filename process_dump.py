@@ -18,7 +18,7 @@ import pandas as pd
 
 DUMP_FILE = 'pluginText.dump'
 OUTPUT_FILE = 'results.html'
-
+SECS_PER_WEEK = 604800
 
 # 		load_data()
 #
@@ -90,6 +90,23 @@ def create_matrix(data, input_data):
     return result_mat
 
 
+# 		dead_host_info()
+#
+# Returns information about a single host to be . Helper function to get_host_info
+# Input  - host_data: Dictionary array with host info like DNS, IP, and REPO
+# Output - String array with all of the hosts' information
+def dead_host_info(host):
+    temp = ('<font style="color:#DF0101">'
+            + 'HOST NOT SEEN IN ' + str(round((time.time() - float(host['L_SEEN'])) / SECS_PER_WEEK, 2)) + ' WEEKS'
+            + '<br>DNS: ' + host['DNS']
+            + '<br>IP: ' + host['IP']
+            + '<br>Repository: ' + host['REPO']
+            + '<br>MAC Address: ' + host['MAC']
+            + '<br>Last seen: ' + time.ctime(float(host['L_SEEN']))
+            + '</font>').encode('utf-8')
+    return temp
+
+
 # 		get_host_info()
 #
 # Returns information from the host in a pd.to_html friendly format (string)
@@ -98,11 +115,17 @@ def create_matrix(data, input_data):
 def get_host_info(host_data):
     host_info = []
     for host in host_data:
-        temp = ('DNS: ' + host['DNS'] +
-                '<br>IP: ' + host['IP'] +
-                '<br>Repository: ' + host['REPO'] +
-                '<br>MAC Address: ' + host['MAC'] +
-                '<br>Last seen: ' + time.ctime(float(host['L_SEEN']))).encode('utf-8')
+        # Edge case for a likely dead machine
+        if time.time() - float(host['L_SEEN']) > SECS_PER_WEEK:
+            temp = dead_host_info(host)
+            host_info.append(temp)
+            continue
+
+        temp = ('DNS: ' + host['DNS']
+                + '<br>IP: ' + host['IP']
+                + '<br>Repository: ' + host['REPO']
+                + '<br>MAC Address: ' + host['MAC']
+                + '<br>Last seen: ' + time.ctime(float(host['L_SEEN']))).encode('utf-8')
         host_info.append(temp)
 
     return host_info
