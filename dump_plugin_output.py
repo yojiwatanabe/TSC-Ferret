@@ -13,11 +13,13 @@ module and made human-friendly.
 
 import json
 import getpass
+import ipaddress
 from securitycenter import SecurityCenter5
 
 HOST = 'sec-center-prod-01.uit.tufts.edu'
 OUTPUT_FILE = 'pluginText.dump'
 IP_LENGTH = 4
+
 
 # 		login_sc()
 #
@@ -87,28 +89,30 @@ def dump_data_host_query(host_list, output):
 
     return obj
 
-#       in_ip_range()
-# Function to check if the given ip address is inside 
-def in_ip_range(ip_min, ip_max, ip):
-    list_min = map(int, ip_min.split('.'))
-    list_max = map(int, ip_max.split('.'))
 
-    # Checking if the format is valid
-    if (len(list_min) != IP_LENGTH or len(list_max) != IP_LENGTH):
-        raise Exception('IP address in unknown format')
+#       ip_in_range()
+#
+# Function to check if the given ip address is within a given range
+# Input  - ip_min : String, with IP lower bound
+#        - ip_max : String, with IP upper bound
+#        - ip : String, with IP address to check
+# Output -
+def ip_in_range(ip_min, ip_max, ip):
+    ip_min = ipaddress.IPv4Address(ip_min.decode('utf-8'))
+    ip_max = ipaddress.IPv4Address(ip_max.decode('utf-8'))
+    ip = ipaddress.IPv4Address(ip.decode('utf-8'))
 
-    for i in range (IP_LENGTH):
-        if (ip > list_min[i] and ip < list_max[i]):
-           return True
-        elif (ip < list_min[i] or ip > list_max[i]):
-            return False
-    return True
+    if ip_min <= ip <= ip_max:
+        return True
+
+    return False
+
 
 # 		dump_data_ip_range()
 #
 # Function to save all queried information that falls within the range of IPs
-# Input  - ip_min: lower IP address boundary
-#          ip_max: upper IP address boundary
+# Input  - ip_min: String, lower IP address boundary
+#          ip_max: String, upper IP address boundary
 #          output: dictionary list with the plugin output from all hosts/repos with host information
 # Output - dictionary list with the plugin output of hosts within the defined IP address range
 def dump_data_ip_range(ip_min, ip_max, output):
@@ -116,18 +120,17 @@ def dump_data_ip_range(ip_min, ip_max, output):
     obj = []
     temp_obj = {'ID': '', 'IP': '', 'DNS': '', 'REPO': '', 'CONTENT': []}
     for case in output:
-        if case[u'ip'] < ip_min or case[u'ip'] > ip_max:
-            continue
-        temp_obj['ID'] = case_num
-        temp_obj['IP'] = case[u'ip']
-        temp_obj['MAC'] = case[u'macAddress']
-        temp_obj['DNS'] = case[u'dnsName']
-        temp_obj['REPO'] = case[u'repository'][u'name']
-        temp_obj['L_SEEN'] = case[u'lastSeen']
-        temp_obj['CONTENT'] = case[u'pluginText'].split('\n')
+        if ip_in_range(ip_min, ip_max, case[u'ip']):
+            temp_obj['ID'] = case_num
+            temp_obj['IP'] = case[u'ip']
+            temp_obj['MAC'] = case[u'macAddress']
+            temp_obj['DNS'] = case[u'dnsName']
+            temp_obj['REPO'] = case[u'repository'][u'name']
+            temp_obj['L_SEEN'] = case[u'lastSeen']
+            temp_obj['CONTENT'] = case[u'pluginText'].split('\n')
 
-        obj.append(temp_obj.copy())
-        case_num += 1
+            obj.append(temp_obj.copy())
+            case_num += 1
 
     return obj
 
