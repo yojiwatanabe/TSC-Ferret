@@ -39,7 +39,7 @@ def main():
         process_dump.create_table(args.search_list)
     except Exception as e:
         print '###### ERROR'
-        'Exception: [' + str(e) + ']:'
+        print 'Exception: [' + str(e) + ']:'
         exit(1)
 
     print "Created " + process_dump.OUTPUT_FILE
