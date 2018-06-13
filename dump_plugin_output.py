@@ -16,7 +16,7 @@ import getpass
 import ipaddress
 from securitycenter import SecurityCenter5
 
-HOST = 'sec-center-prod-01.uit.tufts.edu'
+HOST = ''
 OUTPUT_FILE = 'pluginText.dump'
 IP_LENGTH = 4
 
