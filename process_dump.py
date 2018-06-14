@@ -52,7 +52,8 @@ def read_input(infile):
 # Function to search through the plugin output data for the user-supplied queries.
 # Input  - data : string list of plugin output data to search through
 #          input_data : string list of queries to look for in plugin data
-#          result_mat : numpy matrix where matching queries will be stored
+#          result_mat : numpy matrix where matching queries will be store
+#          csv: Boolean value of if output format is a CSV filed
 # Output - numpy matrix with matching queries
 def searchable_mode(data, input_data, result_mat, csv):
     # Checks if the output is a CSV or HTML, takes away HTML tags if CSV output
@@ -79,6 +80,7 @@ def searchable_mode(data, input_data, result_mat, csv):
 # Creates and populates a table containing software information about desired software from given hosts
 # Input  - data: Host data dict object, dict with host IP, DNS, Repository, and Content
 #          input_data: List of programs to search for (optional for special query)
+#          csv: Boolean value of if output format is a CSV file
 # Output - Numpy matrix object, where each row represents a different host, and each column represents a different
 #          software. This means matrix elements at row row index [i] will have software information about the host with
 #          ID = i + 1. Elements along column [j] will be lists of the software on line number j + 1 in input_file.
@@ -109,6 +111,7 @@ def create_matrix(data, input_data, csv):
 #
 # Returns information about a single host to be . Helper function to get_host_info
 # Input  - host_data: Dictionary array with host info like DNS, IP, and REPO
+#          delimiter: Delimiter to use between points of information, will change depending on if the output type is CSV
 # Output - String array with all of the hosts' information
 def dead_host_info(host, delimiter):
     # Checks if output will be to CSV or HTML, adjusts start/end of host info field accordingly
@@ -134,6 +137,7 @@ def dead_host_info(host, delimiter):
 #
 # Returns information from the host in a pd.to_html friendly format (string)
 # Input  - host_data: Dictionary array with host info like DNS, IP, and REPO
+#          csv: Boolean value of if output format is a CSV file
 # Output - String array with all of the hosts' information
 def get_host_info(host_data, csv):
     # Checks if the output is a CSV or HTML, takes away HTML tags if CSV output, uses other delimiter
@@ -194,9 +198,9 @@ def write_to_html(data, input_data, host_data):
     return
 
 
-# 		write_to_html()
+# 		write_to_csv()
 #
-# Writes the given numpy matrix to a table in a HTML file
+# Writes the given numpy matrix to a CSV file
 # Input  - data: Installed program information about each requested program. m rows by n columns, where each row is a
 #                host, and each column is a program that was specified to search for
 #          input_data: List of programs to search for
@@ -217,10 +221,10 @@ def write_to_csv(data, input_data, host_data):
 #
 # Drives the processDump module. Loads data, processes it as necessary, and converts it to an HTML table, and writes out
 # to a file 'results.html'.
-# Input  - pluginID: String containing the plugin ID to be queried
-#          infile: Special query modifier, optional argument. See README for more
+# Input  - infile: Special query modifier, optional argument. See README for more
+#          csv: Boolean value of if output format is a CSV file
 # Output - none, out to file
-def create_table(infile='', csv=''):
+def create_table(infile='', csv):
     data = load_data()
     input_data = ''
 

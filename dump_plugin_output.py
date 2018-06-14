@@ -159,7 +159,7 @@ def dump_plugin_data(plugin_id, repo_list, host_list, ip_range):
         obj = dump_data_ip_range(ip_min, ip_max, output)
 
     else:
-        # Build JSON structure with data retrieved
+        # Build a dictionary with data retrieved
         case_num = 1
         obj = []
         temp_obj = {'ID': '', 'IP': '', 'DNS': '', 'REPO': '', 'CONTENT': []}
