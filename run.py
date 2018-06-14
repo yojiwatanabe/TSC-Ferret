@@ -27,6 +27,8 @@ def initiate_argparse():
                                                                     '(e.g. -H hosts.txt)')
     parser.add_argument('-i', '--ip_range', dest='ip_range', help='Range of IPs from which to gather data '
                                                                   '(e.g. --ip_range 127.0.0.1-192.168.0.1)')
+    parser.add_argument('-c', '--csv_out', dest='csv', help='Change from default html output to a CSV output',
+                        default=False, action='store_true')
 
     return parser.parse_args()
 
@@ -36,13 +38,18 @@ def main():
 
     try:
         dump_plugin_output.dump_plugin_data(args.plugin_id, args.repo_list, args.host_list, args.ip_range)
-        process_dump.create_table(args.search_list)
+        process_dump.create_table(args.search_list, args.csv)
     except Exception as e:
         print '###### ERROR'
         print 'Exception: [' + str(e) + ']:'
         exit(1)
 
-    print "Created " + process_dump.OUTPUT_FILE
+    if args.csv:
+        print "Created " + process_dump.CSV_OUTPUT
+    else:
+        print "Created " + process_dump.HTML_OUTPUT
+
+    return 0
 
 
 # # # # # # # # # # # # # # # # # # # # # # # #
