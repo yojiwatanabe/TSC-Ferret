@@ -135,16 +135,14 @@ def login_sc():
 
 #     return obj
 
-def repoID_gen(repo_list, repo_data):
+def repoID_gen(repo_list, repo_json):
     repo_IDs = []
-    repo_json = json.loads(repo_data.text)
     for repo_name in repo_list:
         for repos in repo_json['response']:
             if repo_name == repos['name']:
                 repo_IDs.append(repos['id'])
                 break
     return ",".join(repo_IDs)
-
 
 
 
@@ -163,7 +161,7 @@ def dump_plugin_data(plugin_id, repo_list, host_list, ip_range):
     if repo_list:
         repo_list = prd.read_input(repo_list)
         repo_data = sc.get('/repository')
-        repo_comma_list = repoID_gen(repo_list, repo_data)
+        repo_comma_list = repoID_gen(repo_list, repo_data.json())
         arg_tuples.append(('repositoryIDs', '=', repo_comma_list))
 
     if host_list:
