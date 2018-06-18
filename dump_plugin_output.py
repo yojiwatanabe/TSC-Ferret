@@ -14,7 +14,7 @@ module and made human-friendly.
 import json
 import getpass
 # import ipaddress
-import process_dump as prd
+import process_dump
 from securitycenter import SecurityCenter5
 
 HOST = 'sec-center-prod-01.uit.tufts.edu'
@@ -137,11 +137,13 @@ def login_sc():
 
 def repoID_gen(repo_list, repo_json):
     repo_IDs = []
+
     for repo_name in repo_list:
         for repos in repo_json['response']:
             if repo_name == repos['name']:
                 repo_IDs.append(repos['id'])
                 break
+
     return ",".join(repo_IDs)
 
 
@@ -159,14 +161,15 @@ def dump_plugin_data(plugin_id, repo_list, host_list, ip_range):
     arg_tuples = [('pluginID', '=', plugin_id)]
 
     if repo_list:
-        repo_list = prd.read_input(repo_list)
+        repo_list = process_dump.read_input(repo_list)
         repo_data = sc.get('/repository')
         repo_comma_list = repoID_gen(repo_list, repo_data.json())
         arg_tuples.append(('repositoryIDs', '=', repo_comma_list))
 
     if host_list:
-        hosts = prd.read_input(host_list)
+        hosts = process_dump.read_input(host_list)
         arg_tuples.append(('ip', '=', ",".join(hosts)))
+
     elif ip_range:
         arg_tuples.append(('ip', '=', ip_range))
 
@@ -175,6 +178,7 @@ def dump_plugin_data(plugin_id, repo_list, host_list, ip_range):
     case_num = 1
     obj = []
     temp_obj = {'ID': '', 'IP': '', 'DNS': '', 'REPO': '', 'CONTENT': []}
+    
     for case in output:
         temp_obj['ID'] = case_num
         temp_obj['IP'] = case[u'ip']
