@@ -39,8 +39,8 @@ def main():
     try:
         dump_plugin_output.dump_plugin_data(args.plugin_id, args.repo_list, args.host_list, args.ip_range)
         process_dump.create_table(args.csv, args.search_list)
-    except Exception as e:
-        print '###### ERROR'
+    except (Exception, KeyboardInterrupt) as e:
+        print '\n###### ERROR'
         print 'Exception: [' + str(e) + ']:'
         exit(1)
 
