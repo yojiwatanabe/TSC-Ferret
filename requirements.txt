@@ -1,7 +1,4 @@
 pandas
 numpy
 pysecuritycenter
-json
-time
-getpass
-smtplib
+ipaddress
