@@ -16,6 +16,7 @@ import getpass
 # import ipaddress
 import process_dump
 from securitycenter import SecurityCenter5
+from base64 import b64decode
 
 HOST = 'sec-center-prod-01.uit.tufts.edu'
 OUTPUT_FILE = 'pluginText.dump'
@@ -155,9 +156,13 @@ def repoID_gen(repo_list, repo_json):
 # about the desired plugin, and dumps it all to a .dump file.
 # Input  - plugin_id, a string of the plugin_id whose output is to be dumped
 # Output - none, write to file
-def dump_plugin_data(plugin_id, repo_list, host_list, ip_range):
+def dump_plugin_data(plugin_id, repo_list, host_list, ip_range, user, passwd):
     # Establish connection, retrieve data
-    sc = login_sc()
+    if user and passwd:
+        sc = SecurityCenter5(HOST)
+        sc.login(user, b64decode(passwd))
+    else:
+        sc = login_sc()
     arg_tuples = [('pluginID', '=', plugin_id)]
 
     if repo_list:
@@ -174,11 +179,13 @@ def dump_plugin_data(plugin_id, repo_list, host_list, ip_range):
         arg_tuples.append(('ip', '=', ip_range))
 
     output = sc.analysis(*arg_tuples, tool = 'vulndetails')
-
+    if not output:
+        print 'No result found. Exitting program'
+        exit(0)
     case_num = 1
     obj = []
     temp_obj = {'ID': '', 'IP': '', 'DNS': '', 'REPO': '', 'CONTENT': []}
-    
+
     for case in output:
         temp_obj['ID'] = case_num
         temp_obj['IP'] = case[u'ip']
