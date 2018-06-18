@@ -9,6 +9,7 @@ import argparse
 import dump_plugin_output
 import process_dump
 from sys import exit
+import json
 
 
 #       initiate_argparse()
@@ -18,7 +19,9 @@ from sys import exit
 # Output - argparse Argument Parser object
 def initiate_argparse():
     parser = argparse.ArgumentParser(description='Helper script to retrieve plugin output from Service Center scans')
-    parser.add_argument('plugin_id', help='Plugin ID for the desired plugin output')
+    group = parser.add_mutually_exclusive_group(required=True)
+
+    group.add_argument('-p', '--plugin_id', dest='plugin_id', help='Plugin ID for the desired plugin output')
     parser.add_argument('-s', '--search_queries', dest='search_list', help='Input file for words to query output '
                                                                            '(e.g. -s queries.txt)')
     parser.add_argument('-R', '--repo_list', dest='repo_list', help='Input file for repositories to query '
@@ -29,22 +32,33 @@ def initiate_argparse():
                                                                   '(e.g. --ip_range 127.0.0.1-192.168.0.1)')
     parser.add_argument('-c', '--csv_out', dest='csv', help='Change from default html output to a CSV output',
                         default=False, action='store_true')
+    group.add_argument('-C', '--config', dest='config', help='Config file to load credentials and arguments')
 
     return parser.parse_args()
 
 
 def main():
     args = initiate_argparse()
-
+    is_csv = False
     try:
-        dump_plugin_output.dump_plugin_data(args.plugin_id, args.repo_list, args.host_list, args.ip_range)
-        process_dump.create_table(args.csv, args.search_list)
+        if args.config:
+            f = open(args.config, 'r')
+            config = json.loads(f.read())
+            is_csv = config['csv']
+            dump_plugin_output.dump_plugin_data(config['plugin_id'], config['repo_list'], config['host_list'], config['ip_range'],
+                                                config['user'], config['pass'])
+            process_dump.create_table(is_csv, config['search_list'])
+
+        else:
+            is_csv = args.csv
+            dump_plugin_output.dump_plugin_data(args.plugin_id, args.repo_list, args.host_list, args.ip_range, '', '')
+            process_dump.create_table(args.csv, args.search_list)
     except (Exception, KeyboardInterrupt) as e:
         print '\n###### ERROR'
         print 'Exception: [' + str(e) + ']:'
         exit(1)
 
-    if args.csv:
+    if is_csv:
         print "Created " + process_dump.CSV_OUTPUT
     else:
         print "Created " + process_dump.HTML_OUTPUT
