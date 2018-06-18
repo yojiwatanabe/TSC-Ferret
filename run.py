@@ -24,15 +24,17 @@ def initiate_argparse():
     group.add_argument('-p', '--plugin_id', dest='plugin_id', help='Plugin ID for the desired plugin output')
     parser.add_argument('-s', '--search_queries', dest='search_list', help='Input file for words to query output '
                                                                            '(e.g. -s queries.txt)')
-    parser.add_argument('-R', '--repo_list', dest='repo_list', help='Input file for repositories to query '
-                                                                    '(e.g. -R repos.txt)')
-    parser.add_argument('-H', '--host_list', dest='host_list', help='Input file for hosts to query '
-                                                                    '(e.g. -H hosts.txt)')
+    parser.add_argument('-R', '--repo_list', dest='repos', help='Input file for repositories to query '
+                                                                '(e.g. -R repos.txt)')
+    parser.add_argument('-H', '--host_list', dest='hosts', help='Input file for hosts to query '
+                                                                '(e.g. -H hosts.txt)')
     parser.add_argument('-i', '--ip_range', dest='ip_range', help='Range of IPs from which to gather data '
                                                                   '(e.g. --ip_range 127.0.0.1-192.168.0.1)')
     parser.add_argument('-c', '--csv_out', dest='csv', help='Change from default html output to a CSV output',
                         default=False, action='store_true')
     group.add_argument('-C', '--config', dest='config', help='Config file to load credentials and arguments')
+    parser.add_argument('-d', '--allow_duplicates', dest='duplicates', help='Change from default behavior of only '
+                        'outputting latest scan results to show all results', default=False, action='store_true')
 
     return parser.parse_args()
 
@@ -46,13 +48,13 @@ def main():
             config = json.loads(f.read())
             is_csv = config['csv']
             dump_plugin_output.dump_plugin_data(config['plugin_id'], config['repo_list'], config['host_list'], config['ip_range'],
-                                                config['user'], config['pass'])
+                                                config['duplicates'], config['user'], config['pass'])
             process_dump.create_table(is_csv, config['search_list'])
-
         else:
             is_csv = args.csv
-            dump_plugin_output.dump_plugin_data(args.plugin_id, args.repo_list, args.host_list, args.ip_range, '', '')
-            process_dump.create_table(args.csv, args.search_list)
+            dump_plugin_output.dump_plugin_data(args.plugin_id, args.repos, args.hosts, args.ip_range, args.duplicates, '', '')
+            process_dump.create_table(is_csv, args.search_list)
+
     except (Exception, KeyboardInterrupt) as e:
         print '\n###### ERROR'
         print 'Exception: [' + str(e) + ']:'
