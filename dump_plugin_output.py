@@ -40,6 +40,9 @@ def login_sc():
 #
 # Takes in the requested repository names and all repository data and returns the requested repositories' IDs, which is
 # used by dump_plugin_data() to request scan information about specific repositories
+# Input  - requested_repo_names: list of strings of the repositories to query for\
+#          all_repo_data: dictionary object with all data pertaining to scanned repositories
+# Output - String with repository IDs separated by commas
 def get_repo_ids(requested_repo_names, all_repo_data):
     repo_ids = []
 
@@ -52,13 +55,28 @@ def get_repo_ids(requested_repo_names, all_repo_data):
     return ",".join(repo_ids)
 
 
+#       is_not_latest_scan()
+#
+# Checks whether the current scan details are part of the latest scan against a given host
+# Input  - ip_address: unicode string of current IP address
+#          scan_date: unicode string of the date the scan took place (note: in SecurityCenter is the same as last seen)
+#          stored_scans: dictionary list of the already gathered scan data
+# Output - Boolean value indicating whether or not this information is the most current available
+def is_not_latest_scan(ip_address, scan_date, stored_scans):
+    for scan_info in stored_scans:
+        if (ip_address == scan_info['IP']) & (int(scan_date) < int(scan_info['L_SEEN'])):
+            return True
+
+    return False
+
+
 # 		dump_plugin_data()
 #
 # Function that defines the flow in dumpPlugin.py. It opens a connection to Security Center, retrieves the information
 # about the desired plugin, and dumps it all to a .dump file.
-# Input  - plugin_id, a string of the plugin_id whose output is to be dumped
+# Input  - plugin_id: a string of the plugin_id whose output is to be dumped
 # Output - none, write to file
-def dump_plugin_data(plugin_id, requested_repo_names, host_list, ip_range):
+def dump_plugin_data(plugin_id, requested_repo_names, host_list, ip_range, allow_duplicates):
     # Establish connection, retrieve data
     sc = login_sc()
     arg_tuples = [('pluginID', '=', plugin_id)]
@@ -78,12 +96,14 @@ def dump_plugin_data(plugin_id, requested_repo_names, host_list, ip_range):
 
     output = sc.analysis(*arg_tuples, tool='vulndetails')
 
-    case_num = 1
     obj = []
     temp_obj = {'ID': '', 'IP': '', 'DNS': '', 'REPO': '', 'CONTENT': []}
     
     for case in output:
-        temp_obj['ID'] = case_num
+        if is_not_latest_scan(case[u'ip'], case[u'lastSeen'], obj) & (allow_duplicates is False):
+            continue
+
+        temp_obj['ID'] = obj.__len__()
         temp_obj['IP'] = case[u'ip']
         temp_obj['MAC'] = case[u'macAddress']
         temp_obj['DNS'] = case[u'dnsName']
@@ -92,9 +112,8 @@ def dump_plugin_data(plugin_id, requested_repo_names, host_list, ip_range):
         temp_obj['CONTENT'] = case[u'pluginText'].split('\n')
 
         obj.append(temp_obj.copy())
-        case_num += 1
 
-    # Convert to JSON, write to file
+    # Convert to JSON, open and write to file
     ob = json.dumps(obj)
     f = open(OUTPUT_FILE, 'w')
     f.write(ob)
