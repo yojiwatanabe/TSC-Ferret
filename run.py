@@ -8,6 +8,7 @@
 import argparse
 import dump_plugin_output
 import process_dump
+import email_results
 from sys import exit
 
 
@@ -21,14 +22,18 @@ def initiate_argparse():
     parser.add_argument('plugin_id', help='Plugin ID for the desired plugin output')
     parser.add_argument('-s', '--search_queries', dest='search_list', help='Input file for words to query output '
                                                                            '(e.g. -s queries.txt)')
-    parser.add_argument('-R', '--repo_list', dest='repo_list', help='Input file for repositories to query '
-                                                                    '(e.g. -R repos.txt)')
-    parser.add_argument('-H', '--host_list', dest='host_list', help='Input file for hosts to query '
-                                                                    '(e.g. -H hosts.txt)')
+    parser.add_argument('-R', '--repo_list', dest='repos', help='Input file for repositories to query '
+                                                                '(e.g. -R repos.txt)')
+    parser.add_argument('-H', '--host_list', dest='hosts', help='Input file for hosts to query '
+                                                                '(e.g. -H hosts.txt)')
     parser.add_argument('-i', '--ip_range', dest='ip_range', help='Range of IPs from which to gather data '
                                                                   '(e.g. --ip_range 127.0.0.1-192.168.0.1)')
     parser.add_argument('-c', '--csv_out', dest='csv', help='Change from default html output to a CSV output',
                         default=False, action='store_true')
+    parser.add_argument('-d', '--allow_duplicates', dest='duplicates', help='Change from default behavior of only '
+                        'outputting latest scan results to show all results', default=False, action='store_true')
+    parser.add_argument('-e', '--email_results', dest='email_results', help='Email results of TSC Search to the given '
+                        'recipients', default=False, action='store_true')
 
     return parser.parse_args()
 
@@ -37,10 +42,13 @@ def main():
     args = initiate_argparse()
 
     try:
-        dump_plugin_output.dump_plugin_data(args.plugin_id, args.repo_list, args.host_list, args.ip_range)
-        process_dump.create_table(args.search_list, args.csv)
-    except Exception as e:
-        print '###### ERROR'
+        dump_plugin_output.dump_plugin_data(args.plugin_id, args.repos, args.hosts, args.ip_range, args.duplicates)
+        process_dump.create_table(args.csv, args.search_list)
+        if args.email_results:
+            email_results.craft_and_send_message(args.plugin_id, args.hosts, args.repos, args.ip_range,
+                                                 args.search_list, args.duplicates, args.csv)
+    except (Exception, KeyboardInterrupt) as e:
+        print '\n###### ERROR'
         print 'Exception: [' + str(e) + ']:'
         exit(1)
 

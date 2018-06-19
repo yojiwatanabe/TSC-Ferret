@@ -213,7 +213,6 @@ def write_to_csv(data, input_data, host_data):
     full_frame = pd.concat([host_frame, data_frame], axis=1)
     full_frame.to_csv(CSV_OUTPUT)
 
-
     return
 
 
@@ -224,7 +223,7 @@ def write_to_csv(data, input_data, host_data):
 # Input  - infile: Special query modifier, optional argument. See README for more
 #          csv: Boolean value of if output format is a CSV file
 # Output - none, out to file
-def create_table(infile='', csv):
+def create_table(csv, infile=''):
     data = load_data()
     input_data = ''
 
