@@ -8,6 +8,7 @@
 import argparse
 import dump_plugin_output
 import process_dump
+import email_results
 from sys import exit
 
 
@@ -41,6 +42,8 @@ def main():
     try:
         dump_plugin_output.dump_plugin_data(args.plugin_id, args.repos, args.hosts, args.ip_range, args.duplicates)
         process_dump.create_table(args.csv, args.search_list)
+        email_results.craft_and_send_message(args.plugin_id, args.repos, args.hosts, args.ip_range, args.duplicates,
+                                             args.csv, args.search_list)
     except (Exception, KeyboardInterrupt) as e:
         print '\n###### ERROR'
         print 'Exception: [' + str(e) + ']:'
