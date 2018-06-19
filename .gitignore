@@ -12,3 +12,6 @@ __pycache__/
 # Distribution / packaging
 .Python
 
+# IDE
+.idea/
+
