@@ -36,7 +36,7 @@ The user would then use `[-R REPO_LIST]` as an optional argument where `REPO_LIS
 
 ### Config file
 User can save the choice of arguments and the credential in config files which can be fed into TSCS to easily search in the scan results. The config file can have any name and should be fed in the format `python run.py -C CONFIG_FILE` where `CONFIG_FILE` is the name of the file that has the user's choices in json format. 
-A config file can be generated using the script `config_gen.py` which asks the user for choices interactively and stores them in file with the name specified by user.
+A config file can be generated using the script `config_gen.py` which can be run using the command `python config_gen.py`. This script asks the user for choices interactively and stores them in a file with the name specified by user.
 
 ### Examples
 * Find all software running on hosts (plugin 22869):
