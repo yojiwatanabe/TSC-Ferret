@@ -21,18 +21,22 @@ python
 ``` 
 
 ### Filters
-There are three available filters which can only be used one at a time. These filters can be used to output data with only the desired ip or repository. 
+There are three available filters in TSCS. These filters can be used to output data with only the desired ip or repository. 
 
-#### Repository filter
-For getting data based on repository, user can make a text file (.txt) with a single repository per line. For example, if the user needs the data related to `atst01nix001` and `aprd01nix001` repositories, the text file would look like:
+ #### Repository filter
+ For getting data based on repository, user can make a text file (.txt) with a single repository per line. For example, if the user needs the data related to `atst01nix001` and `aprd01nix001` repositories, the text file would look like:
 ```
 atst01nix001
 aprd01nix001
 ```
 The user would then use `[-R REPO_LIST]` as an optional argument where `REPO_LIST` is the text file name.
 
-#### IP Address filter
-For getting data based on IP addresses, user has two choices. One way is to make a text file (.txt) with one IP Address per line. Then the user should use `[-H HOST_LIST]` as an optional argument where `HOST_LIST` is the text file name. Another way is to specify a range of ip. The user can use `[--ip_range IP_RANGE]` as an optional argument where `IP_RANGE` is in the format `xxx.xxx.xxx.xxx-xxx.xxx.xxx.xxx` without any spaces in the IPs. In this range the smallest IP should be at the first before the `-` and the largest IP should be after.
+ #### IP Address filter
+ For getting data based on IP addresses, user has two choices. One way is to make a text file (.txt) with one IP Address per line. Then the user should use `[-H HOST_LIST]` as an optional argument where `HOST_LIST` is the text file name. Another way is to specify a range of ip. The user can use `[--ip_range IP_RANGE]` as an optional argument where `IP_RANGE` is in the format `xxx.xxx.xxx.xxx/xx` without any spaces in the IP. This range should be in the CIDR notation.
+
+### Config file
+User can save the choice of arguments and the credential in config files which can be fed into TSCS to easily search in the scan results. The config file can have any name and should be fed in the format `python run.py -C CONFIG_FILE` where `CONFIG_FILE` is the name of the file that has the user's choices in json format. 
+A config file can be generated using the script `config_gen.py` which can be run using the command `python config_gen.py`. This script asks the user for choices interactively and stores them in a file with the name specified by user.
 
 ### Examples
 * Find all software running on hosts (plugin 22869):
