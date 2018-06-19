@@ -5,8 +5,8 @@
 email_results.py
 
 This module works to email the results of the plugin output query. It is able to read the recipients list from a file
-as well as read in from the command line. It uses a SMTP server to craft_message out each message attached with the results
-table created from the last query.
+as well as read in from the command line. It uses a SMTP server to craft_message out each message attached with the
+results table created from the last query.
 """
 
 from process_dump import read_input
@@ -34,22 +34,39 @@ SENDER_ADDRESS = 'tsc_search_notifier@tufts.edu'
 BODY_POSTFIX = '\n\n==================================================\nTHIS IS AN AUTOMATED MESSAGE, DO NOT RESPOND'
 
 
-def craft_and_send_message(plugin_id, repos, hosts, ip_range, duplicates, csv, search_list):
+#       craft_and_send_message()
+#
+# Driver for the email_results.py module. Calls on helpers to craft each section of the email before sending the email
+# individually to each recipient.
+# Input  - plugin_id: string with plugin ID that was queried
+#          hosts: string with hosts that were queried (if any)
+#          repos: string with repost that were queried (if any)
+#          ip_range: string of the IP range (CIDR format) that was queried (if any)
+#          duplicates: boolean of whether or not duplicates are allowed
+#          csv: boolean of whether or not output is in csv format
+#          search_list:
+# Output - none
+def craft_and_send_message(plugin_id, hosts, repos, ip_range, search_list, duplicates, csv):
     if csv:
         filename = ''.join((FILENAME, CSV_EXTENSION))
     else:
         filename = ''.join((FILENAME, HTML_EXTENSION))
 
-    encoded_attachment = get_attachment(filename)
+    encoded_attachment = get_attachment_content(filename)
     subject_line = get_subject_line()
-    email_body = get_information(plugin_id, hosts, repos, ip_range, search_list, duplicates)
+    email_body = craft_body(plugin_id, hosts, repos, ip_range, search_list, duplicates)
 
     for recipient in RECIPIENTS:
         send_message(encoded_attachment, subject_line, email_body, recipient, filename)
 
-    return True
+    return
 
 
+#       get_subject_line()
+#
+# Function to craft the subject line of the email. Depends on the date and  time at which the email is being crafted
+# Input  - none
+# Output - string with the subject line to be added to email
 def get_subject_line():
     date = datetime.now()
     formatted_date = str(date.month) + '/' + str(date.day) + '/' + str(date.year)
@@ -60,7 +77,18 @@ def get_subject_line():
     return ''.join([SUBJECT_PREFIX, formatted_datetime])
 
 
-def get_information(plugin_id, hosts, repos, ip_range, search_list, duplicates):
+#       craft_body()
+#
+# Function that crafts the body of the email. Information in the body is descriptive of what kind of queries were run in
+# the instance of TSC Search whose results are being emailed. Adds all information that may be useful.
+# Input  - plugin_id: string with plugin ID that was queried
+#          hosts: string with hosts that were queried (if any)
+#          repos: string with repost that were queried (if any)
+#          ip_range: string with CIDR-formatted IP range queried (if any)
+#          search_list: string list with text that was queried (if any)
+#          duplicates: boolean value of if duplicates were allowed
+# Output - string containing query information to be used in email body
+def craft_body(plugin_id, hosts, repos, ip_range, search_list, duplicates):
     info = PLUGIN_PREFIX + plugin_id
 
     # Add information to body about the configuration of the TSC Search instance
@@ -78,18 +106,32 @@ def get_information(plugin_id, hosts, repos, ip_range, search_list, duplicates):
     if duplicates:
         info = info + '\n' + DUPLICATE_MESSAGE
 
-    info = info + BODY_POSTFIX
-
-    return info
+    return info + BODY_POSTFIX
 
 
-def get_attachment(filename):
+#       get_attachment_content()
+#
+# Gets the contents of a file to be attached to the email.
+# Input  - string of the file to be attached to the email/whose contents will be retrieved
+# Output - string with the contents of the given file
+def get_attachment_content(filename):
     file_stream = open(filename, 'rb')
     file_content = file_stream.read()
 
     return file_content
 
 
+#       send_message()
+#
+# Function to craft email in MIME format. Takes in all information about the email to be sent, crafts the email
+# including sender, recipient, attachments, body, and then sends it to the recipients through the designated SMTP server
+# in the global variables.
+# Input  - attachment: string with the contents of the file to be attached to the email
+#          subject_line: string with the subject line of the email
+#          body: string with the body of the email
+#          recipient: string with a single address to receive the email
+#          filename: string with the name of the attachment file
+# Output - None
 def send_message(attachment, subject_line, body, recipient, filename):
     msg = MIMEMultipart()
     msg['From'] = SENDER_ADDRESS

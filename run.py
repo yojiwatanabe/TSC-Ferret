@@ -32,6 +32,8 @@ def initiate_argparse():
                         default=False, action='store_true')
     parser.add_argument('-d', '--allow_duplicates', dest='duplicates', help='Change from default behavior of only '
                         'outputting latest scan results to show all results', default=False, action='store_true')
+    parser.add_argument('-e', '--email_results', dest='email_results', help='Email results of TSC Search to the given '
+                        'recipients', default=False, action='store_true')
 
     return parser.parse_args()
 
@@ -42,8 +44,9 @@ def main():
     try:
         dump_plugin_output.dump_plugin_data(args.plugin_id, args.repos, args.hosts, args.ip_range, args.duplicates)
         process_dump.create_table(args.csv, args.search_list)
-        email_results.craft_and_send_message(args.plugin_id, args.repos, args.hosts, args.ip_range, args.duplicates,
-                                             args.csv, args.search_list)
+        if args.email_results:
+            email_results.craft_and_send_message(args.plugin_id, args.hosts, args.repos, args.ip_range,
+                                                 args.search_list, args.duplicates, args.csv)
     except (Exception, KeyboardInterrupt) as e:
         print '\n###### ERROR'
         print 'Exception: [' + str(e) + ']:'
