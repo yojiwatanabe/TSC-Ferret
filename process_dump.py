@@ -213,7 +213,6 @@ def write_to_csv(data, input_data, host_data):
     full_frame = pd.concat([host_frame, data_frame], axis=1)
     full_frame.to_csv(CSV_OUTPUT)
 
-
     return
 
 

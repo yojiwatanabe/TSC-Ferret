@@ -4,25 +4,21 @@
 """
 email_results.py
 
-This module works to email the results of the plugin output query. It is able to read the recipients list from a file
-as well as read in from the command line. It uses a SMTP server to craft_message out each message attached with the
-results table created from the last query.
+This module works to email the results of the plugin output query. It relies on a SMTP server to email the information
+to the recipients. Sends information about the query as the email body and attaches the results table (in either a CSV
+or HTML file, depending on what the user specified. Uses MIME formatting.
 """
 
-from process_dump import read_input
+import process_dump
 from pandas import datetime
 from smtplib import SMTP
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from email.mime.application import MIMEApplication
 
-
-SMTP_HOST = 'your.smtp.server'
+SMTP_HOST = ''
 SMTP_PORT = 0
 RECIPIENTS = ['you@example.com']
-FILENAME = 'results'
-CSV_EXTENSION = '.csv'
-HTML_EXTENSION = '.html'
 SUBJECT_PREFIX = 'TSC Search Results @ '
 PLUGIN_PREFIX = 'Plugin ID: '
 HOST_PREFIX = 'Scanned Hosts: '
@@ -48,9 +44,9 @@ BODY_POSTFIX = '\n\n==================================================\nTHIS IS 
 # Output - none
 def craft_and_send_message(plugin_id, hosts, repos, ip_range, search_list, duplicates, csv):
     if csv:
-        filename = ''.join((FILENAME, CSV_EXTENSION))
+        filename = process_dump.CSV_OUTPUT
     else:
-        filename = ''.join((FILENAME, HTML_EXTENSION))
+        filename = process_dump.HTML_OUTPUT
 
     encoded_attachment = get_attachment_content(filename)
     subject_line = get_subject_line()
@@ -93,15 +89,15 @@ def craft_body(plugin_id, hosts, repos, ip_range, search_list, duplicates):
 
     # Add information to body about the configuration of the TSC Search instance
     if hosts:
-        host_strings = read_input(hosts)
+        host_strings = process_dump.read_input(hosts)
         info = info + '\n' + HOST_PREFIX + ', '.join(host_strings)
     if repos:
-        repo_strings = read_input(repos)
+        repo_strings = process_dump.read_input(repos)
         info = info + '\n' + REPO_PREFIX + ', '.join(repo_strings)
     if ip_range:
         info = info + '\n' + IP_RANGE_PREFIX + ip_range
     if search_list:
-        search_strings = read_input(search_list)
+        search_strings = process_dump.read_input(search_list)
         info = info + '\n' + SEARCH_PREFIX + ', '.join(search_strings)
     if duplicates:
         info = info + '\n' + DUPLICATE_MESSAGE
