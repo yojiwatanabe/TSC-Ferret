@@ -5,58 +5,104 @@
 email_results.py
 
 This module works to email the results of the plugin output query. It is able to read the recipients list from a file
-as well as read in from the command line. It uses an SMTP server to send out each message attached with the results
+as well as read in from the command line. It uses a SMTP server to craft_message out each message attached with the results
 table created from the last query.
 """
 
-import smtplib
-import base64
+from process_dump import read_input
+from pandas import datetime
+from smtplib import SMTP
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+from email.mime.application import MIMEApplication
 
-filename = "test.html"
 
-# Read a file and encode it into base64 format
-fo = open(filename, "rb")
-filecontent = fo.read()
-encodedcontent = base64.b64encode(filecontent)  # base64
+SMTP_HOST = 'your.smtp.server'
+SMTP_PORT = 0
+RECIPIENTS = ['you@example.com']
+FILENAME = 'results'
+CSV_EXTENSION = '.csv'
+HTML_EXTENSION = '.html'
+SUBJECT_PREFIX = 'TSC Search Results @ '
+PLUGIN_PREFIX = 'Plugin ID: '
+HOST_PREFIX = 'Scanned Hosts: '
+REPO_PREFIX = 'Scanned Repositories: '
+IP_RANGE_PREFIX = 'Scanned IP Range (CIDR): '
+SEARCH_PREFIX = 'Search Queries: '
+DUPLICATE_MESSAGE = 'Allowing duplicates'
+SENDER_ADDRESS = 'tsc_search_notifier@tufts.edu'
+BODY_POSTFIX = '\n\n==================================================\nTHIS IS AN AUTOMATED MESSAGE, DO NOT RESPOND'
 
-sender = 'webmaster@tutorialpoint.com'
-reciever = 'amrood.admin@gmail.com'
 
-marker = "AUNIQUEMARKER"
+def craft_and_send_message(plugin_id, repos, hosts, ip_range, duplicates, csv, search_list):
+    if csv:
+        filename = ''.join((FILENAME, CSV_EXTENSION))
+    else:
+        filename = ''.join((FILENAME, HTML_EXTENSION))
 
-body ="""
-This is a test email to send an attachement.
-"""
-# Define the main headers.
-part1 = """From: From Person <me@fromdomain.net>
-To: To Person <amrood.admin@gmail.com>
-Subject: Sending Attachement
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary=%s
---%s
-""" % (marker, marker)
+    encoded_attachment = get_attachment(filename)
+    subject_line = get_subject_line()
+    email_body = get_information(plugin_id, hosts, repos, ip_range, search_list, duplicates)
 
-# Define the message action
-part2 = """Content-Type: text/plain
-Content-Transfer-Encoding:8bit
+    for recipient in RECIPIENTS:
+        send_message(encoded_attachment, subject_line, email_body, recipient, filename)
 
-%s
---%s
-""" % (body,marker)
+    return True
 
-# Define the attachment section
-part3 = """Content-Type: multipart/mixed; name=\"%s\"
-Content-Transfer-Encoding:base64
-Content-Disposition: attachment; filename=%s
 
-%s
---%s--
-""" %(filename, filename, encodedcontent, marker)
-message = part1 + part2 + part3
+def get_subject_line():
+    date = datetime.now()
+    formatted_date = str(date.month) + '/' + str(date.day) + '/' + str(date.year)
+    formatted_time = str(date.hour) + ':' + str(date.minute) + ':' + str(date.second)
 
-try:
-   smtpObj = smtplib.SMTP('localhost')
-   smtpObj.sendmail(sender, reciever, message)
-   print "Successfully sent email"
-except Exception:
-   print "Error: unable to send email"
+    formatted_datetime = ' - '.join([formatted_date, formatted_time])
+
+    return ''.join([SUBJECT_PREFIX, formatted_datetime])
+
+
+def get_information(plugin_id, hosts, repos, ip_range, search_list, duplicates):
+    info = PLUGIN_PREFIX + plugin_id
+
+    # Add information to body about the configuration of the TSC Search instance
+    if hosts:
+        host_strings = read_input(hosts)
+        info = info + '\n' + HOST_PREFIX + ', '.join(host_strings)
+    if repos:
+        repo_strings = read_input(repos)
+        info = info + '\n' + REPO_PREFIX + ', '.join(repo_strings)
+    if ip_range:
+        info = info + '\n' + IP_RANGE_PREFIX + ip_range
+    if search_list:
+        search_strings = read_input(search_list)
+        info = info + '\n' + SEARCH_PREFIX + ', '.join(search_strings)
+    if duplicates:
+        info = info + '\n' + DUPLICATE_MESSAGE
+
+    info = info + BODY_POSTFIX
+
+    return info
+
+
+def get_attachment(filename):
+    file_stream = open(filename, 'rb')
+    file_content = file_stream.read()
+
+    return file_content
+
+
+def send_message(attachment, subject_line, body, recipient, filename):
+    msg = MIMEMultipart()
+    msg['From'] = SENDER_ADDRESS
+    msg['To'] = recipient
+    msg['Subject'] = subject_line
+
+    msg.attach(MIMEText(body))
+    attached_file = MIMEApplication(attachment)
+    attached_file.add_header('content-disposition', 'attachment', filename=filename)
+    msg.attach(attached_file)
+
+    smtp_server = SMTP(SMTP_HOST, SMTP_PORT)
+    smtp_server.sendmail(SENDER_ADDRESS, recipient, msg.as_string())
+    smtp_server.close()
+
+    return
