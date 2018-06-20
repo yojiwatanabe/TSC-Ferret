@@ -9,8 +9,15 @@ User can specify the plugin they would wish to retrieve the scan data for. User 
 
 ### Usage
 1. Enter your Tenable Security Center host URL in the `dumpPluginOut.py` `HOST` global variable
-2. Execute `python run.py [-s SEARCH_LIST] [-R REPO_LIST] [-H HOST_LIST] [--ip_range IP_RANGE] PLUGIN_ID`, where `PLUGIN_ID` is the desired plugin ID whose data will be retrieved and `SEARH_LIST` is the name of the file containing search queries. All the other arguments are for filtering the output table
-3. Open `results.html` in an internet browser to see your results
+2. Execute `$ ./run.py [-h] [-s SEARCH_LIST] [-R REPOS] [-H HOSTS] [-i IP_RANGE] [-c] [-d] [-e] plugin_id`, where `PLUGIN_ID` is the desired plugin ID whose output will be retrieved
+    * `-s SEARCH LIST` allows user to query each plugin output for keywords (see Search Queries below)
+    * `-R REPOS` allows user to filter for certain repositories (see Repository Filter below)
+    * `-H HOSTS` allows user to filter for certain hosts (see IP Address + IP Range filter below)
+    * `-i IP_RANGE` allows user to filter for certain IPs (see IP Address + IP Range filter below)
+    * `-c` changes the table output method from an HTML table to a CSV file
+    * `-d` allows duplicates to be shown in table, default behavior is to only show latest scan result
+    * `-e` will email the results to user-specified recipients (see Emailing Results) below
+3. Open results with an HTML or CSV viewer, according to the chosen output
 
 ### Search Queries
 Tenable Security Center Search allows for special queries for all plugins. This gives the user more control over how they wish to retrieve the plugin output. A text file (.txt) with newline separated words can be used to specify which word to query. For example, if one was interested in `gcc`, `make`, and `python` on different hosts, the text file would look like:
@@ -23,8 +30,8 @@ python
 ### Filters
 There are three available filters in TSCS. These filters can be used to output data with only the desired ip or repository. 
 
- #### Repository filter
- For getting data based on repository, user can make a text file (.txt) with a single repository per line. For example, if the user needs the data related to `atst01nix001` and `aprd01nix001` repositories, the text file would look like:
+#### Repository Filter
+For getting data based on repository, user can make a text file (.txt) with a single repository per line. For example, if the user needs the data related to `atst01nix001` and `aprd01nix001` repositories, the text file would look like:
 ```
 atst01nix001
 aprd01nix001
@@ -46,6 +53,10 @@ The user can choose to email the resulting table (in CSV or HTML format) to a li
 * Find all software running on hosts (plugin 22869):
 ```
 python run.py 22869
+```
+* Find software version history on host 127.0.0.1 (plugin 22869):
+```
+python run.py -d -i 127.0.0.1/32 22869
 ```
 * Find certain software, specified in programs.txt, running on hosts:
 ```
