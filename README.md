@@ -14,6 +14,7 @@ User can specify the plugin they would wish to retrieve the scan data for. User 
     * `-R REPOS` allows user to filter for certain repositories (see Repository Filter below)
     * `-H HOSTS` allows user to filter for certain hosts (see IP Address + IP Range filter below)
     * `-i IP_RANGE` allows user to filter for certain IPs (see IP Address + IP Range filter below)
+    * `-C CONFIG_FILE` allows user to pass arguments from a pre-written config file (see Config file below)
     * `-c` changes the table output method from an HTML table to a CSV file
     * `-d` allows duplicates to be shown in table, default behavior is to only show latest scan result
     * `-e` will email the results to user-specified recipients (see Emailing Results) below
