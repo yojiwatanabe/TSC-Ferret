@@ -31,12 +31,16 @@ aprd01nix001
 ```
 The user would then use `[-R REPO_LIST]` as an optional argument where `REPO_LIST` is the text file name.
 
- #### IP Address filter
- For getting data based on IP addresses, user has two choices. One way is to make a text file (.txt) with one IP Address per line. Then the user should use `[-H HOST_LIST]` as an optional argument where `HOST_LIST` is the text file name. Another way is to specify a range of ip. The user can use `[--ip_range IP_RANGE]` as an optional argument where `IP_RANGE` is in the format `xxx.xxx.xxx.xxx/xx` without any spaces in the IP. This range should be in the CIDR notation.
+ #### IP Address + IP Range filter
+For getting data based on IP addresses, user has two choices. One way is to make a text file (.txt) with one IP Address per line. Then the user should use `[-H --host_list HOST_LIST]` as an optional argument where `HOST_LIST` is the text file name. Another way is to specify a range of ip. The user can use `[-i --ip_range IP_RANGE]` as an optional argument where `IP_RANGE` is in the format `xxx.xxx.xxx.xxx/xx` without any spaces in the IP. This range should be in CIDR notation.
 
 ### Config file
 User can save the choice of arguments and the credential in config files which can be fed into TSCS to easily search in the scan results. The config file can have any name and should be fed in the format `python run.py -C CONFIG_FILE` where `CONFIG_FILE` is the name of the file that has the user's choices in json format. 
 A config file can be generated using the script `config_gen.py` which can be run using the command `python config_gen.py`. This script asks the user for choices interactively and stores them in a file with the name specified by user.
+
+### Emailing Results
+The user can choose to email the resulting table (in CSV or HTML format) to a list of recipients. This is done by connecting to a user-specified SMTP server, specified in the global variables in `email_results.py` lines 19, 20. Recipients are added in line 21. Results are sent as an email attachment along with a short summary of the query in the body of the email. 
+(Note: some email providers may filter these reports as spam/junk)
 
 ### Examples
 * Find all software running on hosts (plugin 22869):
