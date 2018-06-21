@@ -15,6 +15,7 @@ import json
 import getpass
 import process_dump
 from securitycenter import SecurityCenter5
+from base64 import b64decode
 
 HOST = 'sec-center-prod-01.uit.tufts.edu'
 OUTPUT_FILE = 'pluginText.dump'
@@ -76,9 +77,15 @@ def is_not_latest_scan(ip_address, scan_date, stored_scans):
 # about the desired plugin, and dumps it all to a .dump file.
 # Input  - plugin_id: a string of the plugin_id whose output is to be dumped
 # Output - none, write to file
-def dump_plugin_data(plugin_id, requested_repo_names, host_list, ip_range, allow_duplicates):
+
+def dump_plugin_data(plugin_id, requested_repo_names, host_list, ip_range, allow_duplicates, user, passwd):
     # Establish connection, retrieve data
-    sc = login_sc()
+    if user and passwd:
+        sc = SecurityCenter5(HOST)
+        sc.login(user, b64decode(passwd))
+    else:
+        sc = login_sc()
+        
     arg_tuples = [('pluginID', '=', plugin_id)]
 
     if requested_repo_names:
@@ -94,11 +101,14 @@ def dump_plugin_data(plugin_id, requested_repo_names, host_list, ip_range, allow
     elif ip_range:
         arg_tuples.append(('ip', '=', ip_range))
 
-    output = sc.analysis(*arg_tuples, tool='vulndetails')
+    output = sc.analysis(*arg_tuples, tool = 'vulndetails')
+    if not output:
+        print 'No result found. Exitting program'
+        exit(0)
 
     obj = []
     temp_obj = {'ID': '', 'IP': '', 'DNS': '', 'REPO': '', 'CONTENT': []}
-    
+
     for case in output:
         if is_not_latest_scan(case[u'ip'], case[u'lastSeen'], obj) & (allow_duplicates is False):
             continue
