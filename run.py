@@ -55,10 +55,14 @@ def main():
             dump_plugin_output.dump_plugin_data(args.plugin_id, args.repos, args.hosts, args.ip_range, args.duplicates, '', '')
             process_dump.create_table(is_csv, args.search_list)
 
-    except (Exception, KeyboardInterrupt) as e:
+    except Exception as e:
         print '\n###### ERROR'
         print 'Exception: [' + str(e) + ']:'
         exit(1)
+    except KeyboardInterrupt as k:
+        print '\n###### Keyboard Interrupt'
+        print 'exiting...'
+        exit(1)        
 
     if is_csv:
         print "Created " + process_dump.CSV_OUTPUT
