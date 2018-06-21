@@ -8,6 +8,7 @@
 import argparse
 import dump_plugin_output
 import process_dump
+import email_results
 from sys import exit
 import json
 
@@ -35,6 +36,8 @@ def initiate_argparse():
     group.add_argument('-C', '--config', dest='config', help='Config file to load credentials and arguments')
     parser.add_argument('-d', '--allow_duplicates', dest='duplicates', help='Change from default behavior of only '
                         'outputting latest scan results to show all results', default=False, action='store_true')
+    parser.add_argument('-e', '--email_results', dest='email_results', help='Email results of TSC Search to the given '
+                        'recipients', default=False, action='store_true')
 
     return parser.parse_args()
 
