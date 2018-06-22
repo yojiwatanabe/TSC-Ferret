@@ -10,16 +10,19 @@ compares the list with the data output from processDump.py and gives us relevant
 """
 
 
+import os
 import json
 import time
 import numpy as np
 import pandas as pd
+import pdfkit as pdf
 
 
 DUMP_FILE = 'pluginText.dump'
 HTML_OUTPUT = 'results.html'
 HTML_DELIMITER = '<br>'
 CSV_OUTPUT = 'results.csv'
+PDF_OUTPUT = 'results.pdf'
 CSV_DELIMITER = ' | '
 SECS_PER_WEEK = 604800
 
@@ -191,8 +194,9 @@ def write_to_html(data, input_data, host_data):
     host_frame = pd.DataFrame(host_data, index=range(1, len(data) + 1), columns=['Host Info:'])
     data_frame = make_data_frame(data, input_data)
 
-    full_frame = pd.concat([host_frame, data_frame], axis=1)
     pd.set_option('display.max_colwidth', -1)
+
+    full_frame = pd.concat([host_frame, data_frame], axis=1)
     full_frame.to_html(HTML_OUTPUT, escape=False)
 
     return
@@ -216,6 +220,31 @@ def write_to_csv(data, input_data, host_data):
     return
 
 
+# 		write_to_pdf()
+#
+# Writes the given numpy matrix to a PDF file
+# Input  - data: Installed program information about each requested program. m rows by n columns, where each row is a
+#                host, and each column is a program that was specified to search for
+#          input_data: List of programs to search for
+#          host_data: List with host information
+# Output - none, out to file
+def write_to_pdf(data, input_data, host_data):
+    write_to_html(data, input_data, host_data)
+    options = {
+        'page-size': 'A4',
+        'margin-top': '0.5in',
+        'margin-right': '0.5in',
+        'margin-bottom': '0.5in',
+        'margin-left': '0.5in',
+        'dpi': 225
+    }
+
+    pdf.from_file(HTML_OUTPUT, PDF_OUTPUT, options=options)
+    os.remove(HTML_OUTPUT)
+
+    return
+
+
 # 		create_table()
 #
 # Drives the processDump module. Loads data, processes it as necessary, and converts it to an HTML table, and writes out
@@ -223,7 +252,7 @@ def write_to_csv(data, input_data, host_data):
 # Input  - infile: Special query modifier, optional argument. See README for more
 #          csv: Boolean value of if output format is a CSV file
 # Output - none, out to file
-def create_table(csv, infile=''):
+def create_table(csv, pdf, infile=''):
     data = load_data()
     input_data = ''
 
@@ -234,6 +263,8 @@ def create_table(csv, infile=''):
 
     if csv:
         write_to_csv(result_mat, input_data, host_info)
+    elif pdf:
+        write_to_pdf(result_mat, input_data, host_info)
     else:
         write_to_html(result_mat, input_data, host_info)
 
