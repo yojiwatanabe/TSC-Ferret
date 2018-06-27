@@ -48,6 +48,19 @@ For getting data based on IP addresses, user has two choices. One way is to make
 ### Config File
 Users can save their choice of arguments and credentials in config files that can be read by TSC Search to easily query the scan results. The config file can have any name and should be fed in the format `python run.py -C CONFIG_FILE` where `CONFIG_FILE` is the name of the file that has the user's choices in json format. 
 A config file can be generated using the script `config_gen.py` which can be run using the command `python config_gen.py`. This script asks the user for choices interactively and stores them in a file with the name specified by user.
+* Example config file: Outputs results as CSV, no duplicates, with a repository list in file repos.txt
+
+```
+{"output": "csv",
+ "user": "tsc_search", 
+ "pass": "YmFzZV82NF9pc19ub3RfZW5jcnlwdGlvbg==", 
+ "duplicates": false, 
+ "host_list": "", 
+ "plugin_id": "10180", 
+ "search_list": "", 
+ "repo_list": "repos.txt", 
+ "ip_range": ""}
+```
 
 ### Emailing Results
 The user can choose to email the resulting table (in CSV or HTML format) to a list of recipients. This is done by connecting to a user-specified SMTP server, specified in the global variables in `email_results.py` lines 19, 20. Recipients are added in line 21. Results are sent as an email attachment along with a short summary of the query in the body of the email. 
