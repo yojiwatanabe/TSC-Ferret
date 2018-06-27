@@ -19,12 +19,15 @@ import pdfkit as pdf
 
 
 DUMP_FILE = 'pluginText.dump'
-HTML_OUTPUT = 'results.html'
+OUTPUT_FILENAME = 'results.'
+HTML_OUTPUT = OUTPUT_FILENAME + 'html'
+CSV_OUTPUT = OUTPUT_FILENAME + 'csv'
+PDF_OUTPUT = OUTPUT_FILENAME + 'pdf'
+JSON_OUTPUT = OUTPUT_FILENAME + 'json'
 HTML_DELIMITER = '<br>'
-CSV_OUTPUT = 'results.csv'
-PDF_OUTPUT = 'results.pdf'
-CSV_DELIMITER = ' | '
+ALT_DELIMITER = ' | '
 SECS_PER_WEEK = 604800
+OUTPUT_TYPES = ['html', 'pdf', 'csv', 'json']
 
 
 # 		load_data()
@@ -58,10 +61,10 @@ def read_input(infile):
 #          result_mat : numpy matrix where matching queries will be store
 #          csv: Boolean value of if output format is a CSV filed
 # Output - numpy matrix with matching queries
-def searchable_mode(data, input_data, result_mat, csv):
+def searchable_mode(data, input_data, result_mat, is_html):
     # Checks if the output is a CSV or HTML, takes away HTML tags if CSV output
-    if csv:
-        delimiter = CSV_DELIMITER
+    if ~is_html:
+        delimiter = ALT_DELIMITER
     else:
         delimiter = HTML_DELIMITER
 
@@ -83,30 +86,30 @@ def searchable_mode(data, input_data, result_mat, csv):
 # Creates and populates a table containing software information about desired software from given hosts
 # Input  - data: Host data dict object, dict with host IP, DNS, Repository, and Content
 #          input_data: List of programs to search for (optional for special query)
-#          csv: Boolean value of if output format is a CSV file
+#          html: Boolean value of if output format is a html file
 # Output - Numpy matrix object, where each row represents a different host, and each column represents a different
 #          software. This means matrix elements at row row index [i] will have software information about the host with
 #          ID = i + 1. Elements along column [j] will be lists of the software on line number j + 1 in input_file.
 #          E.G. if the second line of my input file is 'ssh', result_mat[0][1] will be all ssh programs installed on
 #          host with ID 1.
-def create_matrix(data, input_data, csv):
+def create_matrix(data, input_data, is_html):
     if input_data:
         result_mat = np.empty((len(data), len(input_data)), dtype=object)
     else:
         result_mat = np.empty((len(data), 1), dtype=object)
     if input_data:
-        result_mat = searchable_mode(data, input_data, result_mat, csv)
+        result_mat = searchable_mode(data, input_data, result_mat, is_html)
     else:
         for i, host in enumerate(data):
             temp_list = ''
             for program in host['CONTENT']:
                 temp_list += program
                 # Skips adding new line HTML tag if output is an HTML file
-                if csv:
-                    continue
+                if is_html:
+                    temp_list += HTML_DELIMITER
 
-                temp_list += HTML_DELIMITER
             result_mat[i] = temp_list
+
     return result_mat
 
 
@@ -118,7 +121,7 @@ def create_matrix(data, input_data, csv):
 # Output - String array with all of the hosts' information
 def dead_host_info(host, delimiter):
     # Checks if output will be to CSV or HTML, adjusts start/end of host info field accordingly
-    if delimiter != CSV_DELIMITER:
+    if delimiter != ALT_DELIMITER:
         font_start = '<font style="color:#DF0101">'
         font_end = '</font>'
     else:
@@ -142,10 +145,10 @@ def dead_host_info(host, delimiter):
 # Input  - host_data: Dictionary array with host info like DNS, IP, and REPO
 #          csv: Boolean value of if output format is a CSV file
 # Output - String array with all of the hosts' information
-def get_host_info(host_data, csv):
-    # Checks if the output is a CSV or HTML, takes away HTML tags if CSV output, uses other delimiter
-    if csv:
-        delimiter = CSV_DELIMITER
+def get_host_info(host_data, html):
+    # Checks if the output is HTML, takes away HTML tags if not, uses alternative delimiter
+    if ~html:
+        delimiter = ALT_DELIMITER
     else:
         delimiter = HTML_DELIMITER
 
@@ -245,6 +248,24 @@ def write_to_pdf(data, input_data, host_data):
     return
 
 
+# 		write_to_json()
+#
+# Writes the given numpy matrix to a PDF file
+# Input  - data: Installed program information about each requested program. m rows by n columns, where each row is a
+#                host, and each column is a program that was specified to search for
+#          input_data: List of programs to search for
+#          host_data: List with host information
+# Output - none, out to file
+def write_to_json(data, input_data, host_data):
+    host_frame = pd.DataFrame(host_data, index=range(1, len(data) + 1), columns=['Host Info:'])
+    data_frame = make_data_frame(data, input_data)
+
+    full_frame = pd.concat([host_frame, data_frame], axis=1)
+    full_frame.to_json(JSON_OUTPUT)
+
+    return
+
+
 # 		create_table()
 #
 # Drives the processDump module. Loads data, processes it as necessary, and converts it to an HTML table, and writes out
@@ -252,20 +273,22 @@ def write_to_pdf(data, input_data, host_data):
 # Input  - infile: Special query modifier, optional argument. See README for more
 #          csv: Boolean value of if output format is a CSV file
 # Output - none, out to file
-def create_table(csv, pdf, infile=''):
+def create_table(output_type, infile=''):
     data = load_data()
     input_data = ''
 
     if infile:
         input_data = read_input(infile)
-    result_mat = create_matrix(data, input_data, csv)
-    host_info = get_host_info(data, csv)
 
-    if csv:
-        write_to_csv(result_mat, input_data, host_info)
-    elif pdf:
-        write_to_pdf(result_mat, input_data, host_info)
-    else:
-        write_to_html(result_mat, input_data, host_info)
+    is_html = output_type == 'html'
+    result_mat = create_matrix(data, input_data, is_html)
+    host_info = get_host_info(data, is_html)
+
+    output_functions = {0: write_to_html,
+                        1: write_to_pdf,
+                        2: write_to_csv,
+                        3: write_to_json}
+
+    output_functions[OUTPUT_TYPES.index(output_type)](result_mat, input_data, host_info)
 
     return

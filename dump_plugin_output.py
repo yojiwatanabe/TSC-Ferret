@@ -77,12 +77,11 @@ def is_not_latest_scan(ip_address, scan_date, stored_scans):
 # about the desired plugin, and dumps it all to a .dump file.
 # Input  - plugin_id: a string of the plugin_id whose output is to be dumped
 # Output - none, write to file
-
-def dump_plugin_data(plugin_id, requested_repo_names, host_list, ip_range, allow_duplicates, user, passwd):
+def dump_plugin_data(plugin_id, requested_repo_names, host_list, ip_range, allow_duplicates, user, pw):
     # Establish connection, retrieve data
-    if user and passwd:
+    if user and pw:
         sc = SecurityCenter5(HOST)
-        sc.login(user, b64decode(passwd))
+        sc.login(user, b64decode(pw))
     else:
         sc = login_sc()
         
