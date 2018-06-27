@@ -7,9 +7,10 @@ User can specify the plugin they would wish to retrieve the scan data for. User 
 
 ***
 
+
 ### Usage
 1. Enter your Tenable Security Center host URL in the `dumpPluginOut.py` `HOST` global variable
-2. Execute `$ ./run.py [-h] (-P PLUGIN_ID | -C CONFIG) [-s SEARCH_LIST] [-R REPOS] [-H HOSTS] [-i IP_RANGE] [-d] [-e] [-c | -p]`
+2. Execute `$ ./run.py [-h] (-P PLUGIN_ID | -C CONFIG) [-s SEARCH_LIST] [-R REPOS] [-H HOSTS] [-i IP_RANGE] [-d] [-e] [-o OUTPUT]`
     * `-C CONFIG_FILE` allows user to pass arguments from a pre-written config file (see Config File section below)
     * `-P PLUGIN_ID` the desired plugin ID whose output will be retrieved
     * `-s SEARCH LIST` allows user to query each plugin output for keywords (see Search Queries section below)
@@ -18,9 +19,9 @@ User can specify the plugin they would wish to retrieve the scan data for. User 
     * `-i IP_RANGE` allows user to filter for certain IPs (see IP Address + IP Range filter section below)
     * `-d` allows duplicates to be shown in table, default behavior is to only show latest scan result
     * `-e` will email the results to user-specified recipients (see Emailing Results) below
-    * `-c` changes the table output method from a HTML file to a CSV file
-    * `-p` changes the table output method from a HTML file to a PDF file
+    * `-o` changes the output file type from the default (HTML) to one of four total choices: HTML, PDF, CSV, and JSON
 3. Open results with an HTML, CSV, or PDF viewer, according to the chosen output
+
 
 ### Search Queries
 Tenable Security Center Search allows for special queries for all plugins. This gives the user more control over how they wish to retrieve the plugin output. A text file (.txt) with newline separated words can be used to specify which word to query. For example, if one was interested in `gcc`, `make`, and `python` on different hosts, the text file would look like:
@@ -77,11 +78,11 @@ python run.py 22869
 ```
 python run.py -d -i 127.0.0.1/32 22869
 ```
-* Find certain software, specified in programs.txt, running on hosts:
+* Find certain software, specified in programs.txt, running on hosts, output as pdf:
 ```
-python run.py -s programs.txt 22869
+python run.py -s programs.txt 22869 -o pdf
 ```
-* Find if hosts are ARP, ICMP, TCP, or UDP ping-able by Nessus:
+* Find if hosts are ARP, ICMP, TCP, or UDP ping-able by Nessus, email results in a JSON file:
 ```
-python run.py 10180
+python -e run.py 10180 -o json
 ```
