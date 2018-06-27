@@ -16,6 +16,7 @@ import time
 import numpy as np
 import pandas as pd
 import pdfkit as pdf
+import re
 
 
 DUMP_FILE = 'pluginText.dump'
@@ -68,8 +69,10 @@ def searchable_mode(data, input_data, result_mat, csv):
     for i, host in enumerate(data):
         for j, input_line in enumerate(input_data):
             temp_list = ''
+            compiled_input = re.compile(input_line.lower())
             for line in host['CONTENT']:
-                if input_line.lower() in line.lower():
+                found = re.search(compiled_input, line.lower())
+                if found:
                     temp_list += line + delimiter
             if temp_list == '':
                 temp_list = 'Query \'' + input_line + '\' not found'
