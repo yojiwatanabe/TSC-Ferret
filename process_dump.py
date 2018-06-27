@@ -16,7 +16,7 @@ import time
 import numpy as np
 import pandas as pd
 import pdfkit as pdf
-import re
+from re import compile, search
 
 
 DUMP_FILE = 'pluginText.dump'
