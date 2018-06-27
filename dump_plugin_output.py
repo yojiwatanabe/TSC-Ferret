@@ -101,9 +101,9 @@ def dump_plugin_data(plugin_id, requested_repo_names, host_list, ip_range, allow
     elif ip_range:
         arg_tuples.append(('ip', '=', ip_range))
 
-    output = sc.analysis(*arg_tuples, tool = 'vulndetails')
+    output = sc.analysis(*arg_tuples, tool='vulndetails')
     if not output:
-        print 'No result found. Exitting program'
+        print 'No results found. Exiting program'
         exit(0)
 
     obj = []

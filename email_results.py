@@ -42,9 +42,11 @@ BODY_POSTFIX = '\n\n==================================================\nTHIS IS 
 #          csv: boolean of whether or not output is in csv format
 #          search_list:
 # Output - none
-def craft_and_send_message(plugin_id, hosts, repos, ip_range, search_list, duplicates, csv):
+def craft_and_send_message(plugin_id, hosts, repos, ip_range, search_list, duplicates, csv, pdf):
     if csv:
         filename = process_dump.CSV_OUTPUT
+    if pdf:
+        filename = process_dump.PDF_OUTPUT
     else:
         filename = process_dump.HTML_OUTPUT
 

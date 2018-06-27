@@ -1,4 +1,4 @@
-pandas
-numpy
-pysecuritycenter
-ipaddress
+numpy>=1.14.0
+pandas>=0.23.0
+pdfkit==0.6.1
+pySecurityCenter==3.0.3
