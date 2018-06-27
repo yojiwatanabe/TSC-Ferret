@@ -47,13 +47,15 @@ For getting data based on IP addresses, user has two choices. One way is to make
 
 ### Config File
 Users can save their choice of arguments and credentials in config files that can be read by TSC Search to easily query the scan results. The config file can have any name and should be fed in the format `python run.py -C CONFIG_FILE` where `CONFIG_FILE` is the name of the file that has the user's choices in json format. 
-A config file can be generated using the script `config_gen.py` which can be run using the command `python config_gen.py`. This script asks the user for choices interactively and stores them in a file with the name specified by user.
+A config file can be generated using the script `config_gen.py` which can be run using the command `python config_gen.py`. This script asks the user for choices interactively and stores them in a file with the name specified by user. 
+
+__Note: the authors of this program recommend creating a TSC Search-specific user with low-level permissions for use with the config file, as password is simply base64 encoded and can be easily retrieved by a malicious actor.__
 * Example config file: Outputs results as CSV, no duplicates, with a repository list in file repos.txt
 
 ```
 {"output": "csv",
- "user": "tsc_search", 
- "pass": "YmFzZV82NF9pc19ub3RfZW5jcnlwdGlvbg==", 
+ "user": "my_username", 
+ "pass": "my_b64_encoded_password", 
  "duplicates": false, 
  "host_list": "", 
  "plugin_id": "10180", 
