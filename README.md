@@ -29,6 +29,7 @@ gcc
 make
 python
 ``` 
+User can also use regular expression for search query. The program will look for characters that match with the regular expression. If the regular expression search finds a result inside the line being searched the program includes the line in the output. The user does not have to specify the program to use regex search. But the user has to be careful while using search queries that contains characters used in regular expression syntax. Such characters have to be escaped using a back slash `\`.  
 
 ### Filters
 There are three available filters in TSC Search. These filters can be used to output data with only the desired ip or repository. 
