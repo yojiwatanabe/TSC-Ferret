@@ -16,9 +16,9 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from email.mime.application import MIMEApplication
 
-SMTP_HOST = ''
-SMTP_PORT = 0
-RECIPIENTS = ['you@example.com']
+SMTP_HOST = 'smtp.tufts.edu'
+SMTP_PORT = 25
+RECIPIENTS = ['yojiwata@gmail.com']
 SUBJECT_PREFIX = 'TSC Search Results @ '
 PLUGIN_PREFIX = 'Plugin ID: '
 HOST_PREFIX = 'Scanned Hosts: '
@@ -42,13 +42,8 @@ BODY_POSTFIX = '\n\n==================================================\nTHIS IS 
 #          csv: boolean of whether or not output is in csv format
 #          search_list:
 # Output - none
-def craft_and_send_message(plugin_id, hosts, repos, ip_range, search_list, duplicates, csv, pdf):
-    if csv:
-        filename = process_dump.CSV_OUTPUT
-    if pdf:
-        filename = process_dump.PDF_OUTPUT
-    else:
-        filename = process_dump.HTML_OUTPUT
+def craft_and_send_message(plugin_id, hosts, repos, ip_range, search_list, duplicates, output_type):
+    filename = process_dump.OUTPUT_FILENAME + output_type
 
     encoded_attachment = get_attachment_content(filename)
     subject_line = get_subject_line()

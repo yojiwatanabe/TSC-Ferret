@@ -11,6 +11,7 @@ import process_dump
 import email_results
 import dump_plugin_output
 from sys import exit
+from base64 import b64decode
 
 
 #       initiate_argparse()
@@ -21,7 +22,6 @@ from sys import exit
 def initiate_argparse():
     parser = argparse.ArgumentParser(description='Helper script to retrieve plugin output from Service Center scans')
     plugin_source = parser.add_mutually_exclusive_group(required=True)
-    output_type = parser.add_mutually_exclusive_group(required=False)
 
     plugin_source.add_argument('-P', '--plugin_id', dest='plugin_id', help='Plugin ID for the desired plugin output')
     plugin_source.add_argument('-C', '--config', dest='config', help='Config file to load credentials and arguments')
@@ -38,43 +38,51 @@ def initiate_argparse():
                         'outputting latest scan results to show all results', default=False, action='store_true')
     parser.add_argument('-e', '--email_results', dest='email_results', help='Email results of TSC Search to the given '
                         'recipients', default=False, action='store_true')
-
-    output_type.add_argument('-c', '--csv_out', dest='csv', help='Change from default html output to a CSV output',
-                             default=False, action='store_true')
-    output_type.add_argument('-p', '--pdf_out', dest='pdf', help='Change from default html output to a PDF output',
-                             default=False, action='store_true')
+    parser.add_argument('-o', '--output_type', dest='output', help='Change from default html output to a csv, pdf,'
+                        ' or json file', default='html')
 
     return parser.parse_args()
 
 
+def check_valid_output_type(file_type):
+    if file_type.lower() not in process_dump.OUTPUT_TYPES:
+        print('Unsupported file type!\nSupported file types: %s' % ', '.join(process_dump.OUTPUT_TYPES))
+        exit(1)
+
+    return
+
+
 def main():
     args = initiate_argparse()
-    is_csv = False
-    is_pdf = False
+
     try:
         if args.config:
             f = open(args.config, 'r')
-            config = json.loads(f.read())
+            config = json.load(f)
 
-            is_csv = config['csv']
-            is_pdf = config['pdf']
+            out_file_type = config['output']
+            to_email = config['email_results']
 
             dump_plugin_output.dump_plugin_data(config['plugin_id'], config['repo_list'], config['host_list'],
                                                 config['ip_range'], config['duplicates'], config['user'],
-                                                config['pass'])
-            process_dump.create_table(is_csv, is_pdf, config['search_list'])
+                                                b64decode(config['pass']))
+            process_dump.create_table(out_file_type, config['search_list'])
         else:
-            is_csv = args.csv
-            is_pdf = args.pdf
+            to_email = args.email_results
+            out_file_type = args.output
 
             dump_plugin_output.dump_plugin_data(args.plugin_id, args.repos, args.hosts, args.ip_range, args.duplicates,
                                                 '', '')
-            process_dump.create_table(is_csv, is_pdf, args.search_list)
+            process_dump.create_table(out_file_type, args.search_list)
 
-        if args.email_results:
-            email_results.craft_and_send_message(args.plugin_id, args.hosts, args.repos, args.ip_range,
-                                                 args.search_list, args.duplicates, is_csv, is_pdf)
-
+        if to_email:
+            if args.config:
+                email_results.craft_and_send_message(config['plugin_id'], config['host_list'], config['repo_list'],
+                                                     config['ip_range'], config['search_list'], config['duplicates'],
+                                                     out_file_type)
+            else:
+                email_results.craft_and_send_message(args.plugin_id, args.hosts, args.repos, args.ip_range,
+                                                     args.search_list, args.duplicates, out_file_type)
     except Exception as e:
         print '\n###### ERROR'
         print 'Exception: [' + str(e) + ']:'
@@ -85,12 +93,7 @@ def main():
         print 'exiting...'
         exit(1)        
 
-    if is_csv:
-        print "Created " + process_dump.CSV_OUTPUT
-    elif is_pdf:
-        print "Created " + process_dump.PDF_OUTPUT
-    else:
-        print "Created " + process_dump.HTML_OUTPUT
+    print "Done."
 
     return 0
 

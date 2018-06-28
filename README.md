@@ -9,7 +9,7 @@ User can specify the plugin they would wish to retrieve the scan data for. User 
 
 ### Usage
 1. Enter your Tenable Security Center host URL in the `dumpPluginOut.py` `HOST` global variable
-2. Execute `$ ./run.py [-h] (-P PLUGIN_ID | -C CONFIG) [-s SEARCH_LIST] [-R REPOS] [-H HOSTS] [-i IP_RANGE] [-d] [-e] [-c | -p]`
+2. Execute `$ ./run.py [-h] (-P PLUGIN_ID | -C CONFIG) [-s SEARCH_LIST] [-R REPOS] [-H HOSTS] [-i IP_RANGE] [-d] [-e] [-o OUTPUT]`
     * `-C CONFIG_FILE` allows user to pass arguments from a pre-written config file (see Config File section below)
     * `-P PLUGIN_ID` the desired plugin ID whose output will be retrieved
     * `-s SEARCH LIST` allows user to query each plugin output for keywords (see Search Queries section below)
@@ -18,8 +18,7 @@ User can specify the plugin they would wish to retrieve the scan data for. User 
     * `-i IP_RANGE` allows user to filter for certain IPs (see IP Address + IP Range filter section below)
     * `-d` allows duplicates to be shown in table, default behavior is to only show latest scan result
     * `-e` will email the results to user-specified recipients (see Emailing Results) below
-    * `-c` changes the table output method from a HTML file to a CSV file
-    * `-p` changes the table output method from a HTML file to a PDF file
+    * `-o` changes the output file type from the default (HTML) to one of four total choices: HTML, PDF, CSV, and JSON
 3. Open results with an HTML, CSV, or PDF viewer, according to the chosen output
 
 ### Search Queries
@@ -47,7 +46,26 @@ For getting data based on IP addresses, user has two choices. One way is to make
 
 ### Config File
 Users can save their choice of arguments and credentials in config files that can be read by TSC Search to easily query the scan results. The config file can have any name and should be fed in the format `python run.py -C CONFIG_FILE` where `CONFIG_FILE` is the name of the file that has the user's choices in json format. 
-A config file can be generated using the script `config_gen.py` which can be run using the command `python config_gen.py`. This script asks the user for choices interactively and stores them in a file with the name specified by user.
+A config file can be generated using the script `config_gen.py` which can be run using the command `python config_gen.py`. This script asks the user for choices interactively and stores them in a file with the name specified by user. Note: password is base64 encoded, and thus the config file should not be shared with others, as they will have access to your stored password.
+
+__Note: the configuration file stores a base64 encoded version of the password. **This is not secure.** Unless running the application locally, all those with access to the host running TSC Search will be able to decode your password__
+
+A dummy account has been set up without critical permissions in order to run this script. Email yoji(dot)watanabe(at)tufts(dot)edu for account credentials.
+
+* Example config file: Output as CSV file, retrieving plugin 10180 data on hosts belonging to repositories listed in repos.txt
+
+```
+{"user": "jane_doe", 
+ "pass": "base_64_is_not_encryption", 
+ "duplicates": false, 
+ "host_list": "", 
+ "plugin_id": "10180", 
+ "output": "csv", 
+ "search_list": "", 
+ "repo_list": "repos.txt", 
+ "ip_range": ""}
+```
+
 
 ### Emailing Results
 The user can choose to email the resulting table (in CSV or HTML format) to a list of recipients. This is done by connecting to a user-specified SMTP server, specified in the global variables in `email_results.py` lines 19, 20. Recipients are added in line 21. Results are sent as an email attachment along with a short summary of the query in the body of the email. 
@@ -62,11 +80,11 @@ python run.py 22869
 ```
 python run.py -d -i 127.0.0.1/32 22869
 ```
-* Find certain software, specified in programs.txt, running on hosts:
+* Find certain software, specified in programs.txt, running on hosts, output as pdf:
 ```
-python run.py -s programs.txt 22869
+python run.py -s programs.txt 22869 -o pdf
 ```
-* Find if hosts are ARP, ICMP, TCP, or UDP ping-able by Nessus:
+* Find if hosts are ARP, ICMP, TCP, or UDP ping-able by Nessus, email results in a JSON file:
 ```
-python run.py 10180
+python -e run.py 10180 -o json
 ```
