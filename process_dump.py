@@ -16,7 +16,7 @@ import time
 import numpy as np
 import pandas as pd
 import pdfkit as pdf
-from re import compile, search
+from re import compile, search 
 
 
 DUMP_FILE = 'pluginText.dump'
@@ -68,13 +68,13 @@ def searchable_mode(data, input_data, result_mat, is_html):
         delimiter = ALT_DELIMITER
     else:
         delimiter = HTML_DELIMITER
-
+        
     for i, host in enumerate(data):
         for j, input_line in enumerate(input_data):
             temp_list = ''
-            compiled_input = re.compile(input_line.lower())
+            compiled_input = compile(input_line.lower())
             for line in host['CONTENT']:
-                found = re.search(compiled_input, line.lower())
+                found = search(compiled_input, line.lower())
                 if found:
                     temp_list += line + delimiter
             if temp_list == '':
@@ -191,9 +191,8 @@ def make_data_frame(data, input_data):
 # 		write_to_html()
 #
 # Writes the given numpy matrix to a table in a HTML file
-# Input  - data: Installed program information about each requested program. m rows by n columns, where each row is a
-#                host, and each column is a program that was specified to search for
-#          input_data: List of programs to search for
+# Input  - data: Plugin output data, pre-processed according to user input (search, repository/host filters)
+#          input_data: List of programs to search for (if any)
 #          host_data: List with host information
 # Output - none, out to file
 def write_to_html(data, input_data, host_data):
@@ -211,9 +210,8 @@ def write_to_html(data, input_data, host_data):
 # 		write_to_csv()
 #
 # Writes the given numpy matrix to a CSV file
-# Input  - data: Installed program information about each requested program. m rows by n columns, where each row is a
-#                host, and each column is a program that was specified to search for
-#          input_data: List of programs to search for
+# Input  - data: Plugin output data, pre-processed according to user input (search, repository/host filters)
+#          input_data: List of programs to search for (if any)
 #          host_data: List with host information
 # Output - none, out to file
 def write_to_csv(data, input_data, host_data):
@@ -229,9 +227,8 @@ def write_to_csv(data, input_data, host_data):
 # 		write_to_pdf()
 #
 # Writes the given numpy matrix to a PDF file
-# Input  - data: Installed program information about each requested program. m rows by n columns, where each row is a
-#                host, and each column is a program that was specified to search for
-#          input_data: List of programs to search for
+# Input  - data: Plugin output data, pre-processed according to user input (search, repository/host filters)
+#          input_data: List of programs to search for (if any)
 #          host_data: List with host information
 # Output - none, out to file
 def write_to_pdf(data, input_data, host_data):
@@ -273,8 +270,8 @@ def write_to_json(data, input_data, host_data):
 #
 # Drives the processDump module. Loads data, processes it as necessary, and converts it to an HTML table, and writes out
 # to a file 'results.html'.
-# Input  - infile: Special query modifier, optional argument. See README for more
-#          csv: Boolean value of if output format is a CSV file
+# Input  - output_type: string containing the format in which to output results (csv, html, json, pdf)
+#          infile: Special query modifier, optional argument. See README for more
 # Output - none, out to file
 def create_table(output_type, infile=''):
     data = load_data()
@@ -283,7 +280,7 @@ def create_table(output_type, infile=''):
     if infile:
         input_data = read_input(infile)
 
-    is_html = output_type == 'html'
+    is_html = (output_type == 'html')
     result_mat = create_matrix(data, input_data, is_html)
     host_info = get_host_info(data, is_html)
 
@@ -292,6 +289,7 @@ def create_table(output_type, infile=''):
                         2: write_to_csv,
                         3: write_to_json}
 
+    # Call on correct function according to output type
     output_functions[OUTPUT_TYPES.index(output_type)](result_mat, input_data, host_info)
 
     return

@@ -7,7 +7,6 @@ User can specify the plugin they would wish to retrieve the scan data for. User 
 
 ***
 
-
 ### Usage
 1. Enter your Tenable Security Center host URL in the `dumpPluginOut.py` `HOST` global variable
 2. Execute `$ ./run.py [-h] (-P PLUGIN_ID | -C CONFIG) [-s SEARCH_LIST] [-R REPOS] [-H HOSTS] [-i IP_RANGE] [-d] [-e] [-o OUTPUT]`
@@ -21,7 +20,6 @@ User can specify the plugin they would wish to retrieve the scan data for. User 
     * `-e` will email the results to user-specified recipients (see Emailing Results) below
     * `-o` changes the output file type from the default (HTML) to one of four total choices: HTML, PDF, CSV, and JSON
 3. Open results with an HTML, CSV, or PDF viewer, according to the chosen output
-
 
 ### Search Queries
 Tenable Security Center Search allows for special queries for all plugins. This gives the user more control over how they wish to retrieve the plugin output. A text file (.txt) with newline separated words can be used to specify which word to query. For example, if one was interested in `gcc`, `make`, and `python` on different hosts, the text file would look like:
@@ -48,22 +46,26 @@ For getting data based on IP addresses, user has two choices. One way is to make
 
 ### Config File
 Users can save their choice of arguments and credentials in config files that can be read by TSC Search to easily query the scan results. The config file can have any name and should be fed in the format `python run.py -C CONFIG_FILE` where `CONFIG_FILE` is the name of the file that has the user's choices in json format. 
-A config file can be generated using the script `config_gen.py` which can be run using the command `python config_gen.py`. This script asks the user for choices interactively and stores them in a file with the name specified by user. 
+A config file can be generated using the script `config_gen.py` which can be run using the command `python config_gen.py`. This script asks the user for choices interactively and stores them in a file with the name specified by user. Note: password is base64 encoded, and thus the config file should not be shared with others, as they will have access to your stored password.
 
-__Note: the authors of this program recommend creating a TSC Search-specific user with low-level permissions for use with the config file, as password is simply base64 encoded and can be easily retrieved by a malicious actor.__
-* Example config file: Outputs results as CSV, no duplicates, with a repository list in file repos.txt
+__Note: the configuration file stores a base64 encoded version of the password. **This is not secure.** Unless running the application locally, all those with access to the host running TSC Search will be able to decode your password__
+
+A dummy account has been set up without critical permissions in order to run this script. Email yoji(dot)watanabe(at)tufts(dot)edu for account credentials.
+
+* Example config file: Output as CSV file, retrieving plugin 10180 data on hosts belonging to repositories listed in repos.txt
 
 ```
-{"output": "csv",
- "user": "my_username", 
- "pass": "my_b64_encoded_password", 
+{"user": "jane_doe", 
+ "pass": "base_64_is_not_encryption", 
  "duplicates": false, 
  "host_list": "", 
  "plugin_id": "10180", 
+ "output": "csv", 
  "search_list": "", 
  "repo_list": "repos.txt", 
  "ip_range": ""}
 ```
+
 
 ### Emailing Results
 The user can choose to email the resulting table (in CSV or HTML format) to a list of recipients. This is done by connecting to a user-specified SMTP server, specified in the global variables in `email_results.py` lines 19, 20. Recipients are added in line 21. Results are sent as an email attachment along with a short summary of the query in the body of the email. 
