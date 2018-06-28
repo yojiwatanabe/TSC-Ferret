@@ -15,7 +15,6 @@ import json
 import getpass
 import process_dump
 from securitycenter import SecurityCenter5
-from base64 import b64decode
 
 HOST = 'sec-center-prod-01.uit.tufts.edu'
 OUTPUT_FILE = 'pluginText.dump'
@@ -53,6 +52,10 @@ def get_repo_ids(requested_repo_names, all_repo_data):
                 repo_ids.append(repository['id'])
                 break
 
+    if len(repo_ids) < 1:
+        print 'Could not find repository. Exiting program...'
+        exit(1)
+
     return ",".join(repo_ids)
 
 
@@ -82,7 +85,7 @@ def dump_plugin_data(plugin_id, requested_repo_names, host_list, ip_range, allow
     # Establish connection, retrieve data
     if user and pw:
         sc = SecurityCenter5(HOST)
-        sc.login(user, b64decode(pw))
+        sc.login(user, pw)
     else:
         sc = login_sc()
         

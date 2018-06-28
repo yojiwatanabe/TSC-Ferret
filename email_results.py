@@ -18,7 +18,7 @@ from email.mime.application import MIMEApplication
 
 SMTP_HOST = 'smtp.tufts.edu'
 SMTP_PORT = 25
-RECIPIENTS = ['your@email.com']
+RECIPIENTS = ['yojiwata@gmail.com']
 SUBJECT_PREFIX = 'TSC Search Results @ '
 PLUGIN_PREFIX = 'Plugin ID: '
 HOST_PREFIX = 'Scanned Hosts: '
