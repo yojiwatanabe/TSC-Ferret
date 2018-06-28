@@ -11,6 +11,7 @@ import process_dump
 import email_results
 import dump_plugin_output
 from sys import exit
+from base64 import b64decode
 
 
 #       initiate_argparse()
@@ -57,14 +58,14 @@ def main():
     try:
         if args.config:
             f = open(args.config, 'r')
-            config = json.loads(f.read())
+            config = json.load(f)
 
             out_file_type = config['output']
             to_email = config['email_results']
 
             dump_plugin_output.dump_plugin_data(config['plugin_id'], config['repo_list'], config['host_list'],
-                                                config['ip_range'], config['duplicates'], out_file_type,
-                                                config['user'], config['pass'])
+                                                config['ip_range'], config['duplicates'], config['user'],
+                                                b64decode(config['pass']))
             process_dump.create_table(out_file_type, config['search_list'])
         else:
             to_email = args.email_results
@@ -75,9 +76,13 @@ def main():
             process_dump.create_table(out_file_type, args.search_list)
 
         if to_email:
-            email_results.craft_and_send_message(args.plugin_id, args.hosts, args.repos, args.ip_range,
-                                                 args.search_list, args.duplicates, out_file_type)
-
+            if args.config:
+                email_results.craft_and_send_message(config['plugin_id'], config['host_list'], config['repo_list'],
+                                                     config['ip_range'], config['search_list'], config['duplicates'],
+                                                     out_file_type)
+            else:
+                email_results.craft_and_send_message(args.plugin_id, args.hosts, args.repos, args.ip_range,
+                                                     args.search_list, args.duplicates, out_file_type)
     except Exception as e:
         print '\n###### ERROR'
         print 'Exception: [' + str(e) + ']:'
