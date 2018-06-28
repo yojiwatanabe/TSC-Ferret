@@ -77,6 +77,7 @@ def is_not_latest_scan(ip_address, scan_date, stored_scans):
 # about the desired plugin, and dumps it all to a .dump file.
 # Input  - plugin_id: a string of the plugin_id whose output is to be dumped
 # Output - none, write to file
+
 def dump_plugin_data(plugin_id, requested_repo_names, host_list, ip_range, allow_duplicates, user, pw):
     # Establish connection, retrieve data
     if user and pw:
