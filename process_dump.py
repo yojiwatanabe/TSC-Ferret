@@ -202,7 +202,7 @@ def get_host_info(host_data, html, columns=''):
 #          input_data: list of strings that were queried in the plugin output
 # Output - String array with all of the hosts' information
 def make_data_frame(data, input_data):
-    if not data:
+    if data is None:
         return
 
     if input_data:
@@ -220,7 +220,7 @@ def make_data_frame(data, input_data):
 #          input_data: list of strings that were queried in the plugin output
 # Output - String array with all of the hosts' information
 def make_host_frame(data, columns):
-    if not data:
+    if data is None:
         return
 
     if columns:

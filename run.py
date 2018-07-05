@@ -74,7 +74,8 @@ def main():
             dump_plugin_output.dump_plugin_data(config['plugin_id'], config['repo_list'], config['host_list'],
                                                 config['ip_range'], config['duplicates'], config['user'],
                                                 b64decode(config['pass']))
-            process_dump.create_table(out_file_type, config['columns'].split(','), config['search_list'])
+            process_dump.create_table(out_file_type, columns, config['search_list'])
+
         else:
             out_file_type = args.output
             to_email = args.email_results
