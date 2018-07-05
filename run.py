@@ -47,6 +47,11 @@ def initiate_argparse():
     return parser.parse_args()
 
 
+#       check_valid_output_type
+#
+# Function to check if the user given file type is valid or not
+# Input   - file type string
+# Output  - none
 def check_valid_output_type(file_type):
     if file_type.lower() not in process_dump.OUTPUT_TYPES:
         print('Unsupported file type!\nSupported file types: %s' % ', '.join(process_dump.OUTPUT_TYPES))
