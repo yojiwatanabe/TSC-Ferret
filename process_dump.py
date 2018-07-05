@@ -171,7 +171,7 @@ def specific_host_columns(host, columns):
 # Output - String array with all of the hosts' information
 def get_host_info(host_data, html, columns=''):
     # Checks if the output is HTML, takes away HTML tags if not, uses alternative delimiter
-    if ~html:
+    if not html:
         delimiter = ALT_DELIMITER
     else:
         delimiter = HTML_DELIMITER
