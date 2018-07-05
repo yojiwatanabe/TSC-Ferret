@@ -40,6 +40,9 @@ def initiate_argparse():
                         'recipients', default=False, action='store_true')
     parser.add_argument('-o', '--output_type', dest='output', help='Change from default html output to a csv, pdf,'
                         ' or json file', default='html')
+    parser.add_argument('-c', '--columns', dest='columns', help='Specify data columns to be included in the output. '
+                                                                'Currently supports \'IP\', \'DNS\', \'Repository\', '
+                                                                '\'MAC\', \'L_SEEN\'')
 
     return parser.parse_args()
 
@@ -62,18 +65,29 @@ def main():
 
             out_file_type = config['output']
             to_email = config['email_results']
+            columns = config['columns']
+            if columns:
+                columns = columns.split(',')
+                for i, value in enumerate(columns):
+                    columns[i] = value.strip()
 
             dump_plugin_output.dump_plugin_data(config['plugin_id'], config['repo_list'], config['host_list'],
                                                 config['ip_range'], config['duplicates'], config['user'],
                                                 b64decode(config['pass']))
-            process_dump.create_table(out_file_type, config['search_list'])
+            process_dump.create_table(out_file_type, columns, config['search_list'])
+
         else:
-            to_email = args.email_results
             out_file_type = args.output
+            to_email = args.email_results
+            columns = args.columns
+            if columns:
+                columns = columns.split(',')
+                for i, value in enumerate(columns):
+                    columns[i] = value.strip()
 
             dump_plugin_output.dump_plugin_data(args.plugin_id, args.repos, args.hosts, args.ip_range, args.duplicates,
                                                 '', '')
-            process_dump.create_table(out_file_type, args.search_list)
+            process_dump.create_table(out_file_type, columns, args.search_list)
 
         if to_email:
             if args.config:
@@ -83,6 +97,7 @@ def main():
             else:
                 email_results.craft_and_send_message(args.plugin_id, args.hosts, args.repos, args.ip_range,
                                                      args.search_list, args.duplicates, out_file_type)
+
     except Exception as e:
         print '\n###### ERROR'
         print 'Exception: [' + str(e) + ']:'

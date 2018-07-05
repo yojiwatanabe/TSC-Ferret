@@ -29,6 +29,7 @@ HTML_DELIMITER = '<br>'
 ALT_DELIMITER = ' | '
 SECS_PER_WEEK = 604800
 OUTPUT_TYPES = ['html', 'pdf', 'csv', 'json']
+HOST_VALUES = ['IP', 'DNS', 'L_SEEN', 'REPO', 'CONTENT', 'ID', 'MAC']
 
 
 # 		load_data()
@@ -95,7 +96,10 @@ def searchable_mode(data, input_data, result_mat, is_html):
 #          ID = i + 1. Elements along column [j] will be lists of the software on line number j + 1 in input_file.
 #          E.G. if the second line of my input file is 'ssh', result_mat[0][1] will be all ssh programs installed on
 #          host with ID 1.
-def create_matrix(data, input_data, is_html):
+def create_matrix(data, input_data, is_html, columns):
+    if columns and 'CONTENT' not in columns:
+        return
+
     if input_data:
         result_mat = np.empty((len(data), len(input_data)), dtype=object)
     else:
@@ -104,14 +108,15 @@ def create_matrix(data, input_data, is_html):
         result_mat = searchable_mode(data, input_data, result_mat, is_html)
     else:
         for i, host in enumerate(data):
-            temp_list = ''
+            temp_string = ''
             for program in host['CONTENT']:
-                temp_list += program
+                temp_string += program
                 # Skips adding new line HTML tag if output is an HTML file
                 if is_html:
-                    temp_list += HTML_DELIMITER
-
-            result_mat[i] = temp_list
+                    temp_string += HTML_DELIMITER
+            temp_string = temp_string.replace(u'<plugin_output>', u'')
+            temp_string = temp_string.replace(u'</plugin_output>', u'')
+            result_mat[i] = temp_string
 
     return result_mat
 
@@ -122,7 +127,7 @@ def create_matrix(data, input_data, is_html):
 # Input  - host_data: Dictionary array with host info like DNS, IP, and REPO
 #          delimiter: Delimiter to use between points of information, will change depending on if the output type is CSV
 # Output - String array with all of the hosts' information
-def dead_host_info(host, delimiter):
+def dead_host_info(host, delimiter, columns):
     # Checks if output will be to CSV or HTML, adjusts start/end of host info field accordingly
     if delimiter != ALT_DELIMITER:
         font_start = '<font style="color:#DF0101">'
@@ -130,6 +135,10 @@ def dead_host_info(host, delimiter):
     else:
         font_start = ''
         font_end = ''
+
+        if columns:
+            temp = specific_host_columns(host, columns)
+            return temp
 
     temp = (font_start
             + 'HOST NOT SEEN IN ' + str(round((time.time() - float(host['L_SEEN'])) / SECS_PER_WEEK, 2)) + ' WEEKS'
@@ -142,15 +151,27 @@ def dead_host_info(host, delimiter):
     return temp
 
 
+def specific_host_columns(host, columns):
+    if 'CONTENT' in columns:
+        columns.remove('CONTENT')
+
+    temp = []
+    for i, value in enumerate(columns):
+        if value.strip() in HOST_VALUES:
+            temp.append(host[value.strip()])
+
+    return temp
+
+
 # 		get_host_info()
 #
 # Returns information from the host in a pd.to_html friendly format (string)
 # Input  - host_data: Dictionary array with host info like DNS, IP, and REPO
 #          csv: Boolean value of if output format is a CSV file
 # Output - String array with all of the hosts' information
-def get_host_info(host_data, html):
+def get_host_info(host_data, html, columns=''):
     # Checks if the output is HTML, takes away HTML tags if not, uses alternative delimiter
-    if ~html:
+    if not html:
         delimiter = ALT_DELIMITER
     else:
         delimiter = HTML_DELIMITER
@@ -158,8 +179,13 @@ def get_host_info(host_data, html):
     host_info = []
     for host in host_data:
         # Edge case for a likely dead machine
-        if time.time() - float(host['L_SEEN']) > SECS_PER_WEEK:
-            temp = dead_host_info(host, delimiter)
+        if (time.time() - float(host['L_SEEN']) > SECS_PER_WEEK) & (not columns):
+            temp = dead_host_info(host, delimiter, columns)
+            host_info.append(temp)
+            continue
+
+        if columns:
+            temp = specific_host_columns(host, columns)
             host_info.append(temp)
             continue
 
@@ -180,12 +206,32 @@ def get_host_info(host_data, html):
 #          input_data: list of strings that were queried in the plugin output
 # Output - String array with all of the hosts' information
 def make_data_frame(data, input_data):
+    if data is None:
+        return
+
     if input_data:
         data_frame = pd.DataFrame(data, index=range(1, len(data) + 1), columns=input_data)
     else:
-        data_frame = pd.DataFrame(data, index=range(1, len(data) + 1), columns=['Plugin Output:'])
+        data_frame = pd.DataFrame(data, index=range(1, len(data) + 1), columns=['PLUGIN OUTPUT:'])
 
     return data_frame
+
+
+# 		make_host_frame()
+#
+# Creates the pandas data frame to be converted into an HTML table. Sets up layout according to type of query
+# Input  - data: Numpy matrix with information to be listed in table
+#          input_data: list of strings that were queried in the plugin output
+# Output - String array with all of the hosts' information
+def make_host_frame(data, columns):
+    if data is None:
+        return
+
+    if columns:
+        host_frame = pd.DataFrame(data, index=range(1, len(data) + 1), columns=columns)
+    else:
+        host_frame = pd.DataFrame(data, index=range(1, len(data) + 1), columns=['Host Info:'])
+    return host_frame
 
 
 # 		write_to_html()
@@ -195,8 +241,8 @@ def make_data_frame(data, input_data):
 #          input_data: List of programs to search for (if any)
 #          host_data: List with host information
 # Output - none, out to file
-def write_to_html(data, input_data, host_data):
-    host_frame = pd.DataFrame(host_data, index=range(1, len(data) + 1), columns=['Host Info:'])
+def write_to_html(data, input_data, host_data, columns):
+    host_frame = make_host_frame(host_data, columns)
     data_frame = make_data_frame(data, input_data)
 
     pd.set_option('display.max_colwidth', -1)
@@ -214,8 +260,8 @@ def write_to_html(data, input_data, host_data):
 #          input_data: List of programs to search for (if any)
 #          host_data: List with host information
 # Output - none, out to file
-def write_to_csv(data, input_data, host_data):
-    host_frame = pd.DataFrame(host_data, index=range(1, len(data) + 1), columns=['Host Info:'])
+def write_to_csv(data, input_data, host_data, columns):
+    host_frame = make_host_frame(host_data, columns)
     data_frame = make_data_frame(data, input_data)
 
     full_frame = pd.concat([host_frame, data_frame], axis=1)
@@ -231,8 +277,8 @@ def write_to_csv(data, input_data, host_data):
 #          input_data: List of programs to search for (if any)
 #          host_data: List with host information
 # Output - none, out to file
-def write_to_pdf(data, input_data, host_data):
-    write_to_html(data, input_data, host_data)
+def write_to_pdf(data, input_data, host_data, columns):
+    write_to_html(data, input_data, host_data, columns)
     options = {
         'page-size': 'A4',
         'margin-top': '0.5in',
@@ -256,8 +302,8 @@ def write_to_pdf(data, input_data, host_data):
 #          input_data: List of programs to search for
 #          host_data: List with host information
 # Output - none, out to file
-def write_to_json(data, input_data, host_data):
-    host_frame = pd.DataFrame(host_data, index=range(1, len(data) + 1), columns=['Host Info:'])
+def write_to_json(data, input_data, host_data, columns):
+    host_frame = make_host_frame(host_data, columns)
     data_frame = make_data_frame(data, input_data)
 
     full_frame = pd.concat([host_frame, data_frame], axis=1)
@@ -273,7 +319,7 @@ def write_to_json(data, input_data, host_data):
 # Input  - output_type: string containing the format in which to output results (csv, html, json, pdf)
 #          infile: Special query modifier, optional argument. See README for more
 # Output - none, out to file
-def create_table(output_type, infile=''):
+def create_table(output_type, columns='', infile=''):
     data = load_data()
     input_data = ''
 
@@ -281,8 +327,8 @@ def create_table(output_type, infile=''):
         input_data = read_input(infile)
 
     is_html = (output_type == 'html')
-    result_mat = create_matrix(data, input_data, is_html)
-    host_info = get_host_info(data, is_html)
+    result_mat = create_matrix(data, input_data, is_html, columns)
+    host_info = get_host_info(data, is_html, columns)
 
     output_functions = {0: write_to_html,
                         1: write_to_pdf,
@@ -290,6 +336,6 @@ def create_table(output_type, infile=''):
                         3: write_to_json}
 
     # Call on correct function according to output type
-    output_functions[OUTPUT_TYPES.index(output_type)](result_mat, input_data, host_info)
+    output_functions[OUTPUT_TYPES.index(output_type)](result_mat, input_data, host_info, columns)
 
     return

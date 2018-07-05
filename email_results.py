@@ -16,9 +16,9 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from email.mime.application import MIMEApplication
 
-SMTP_HOST = 'smtp.tufts.edu'
-SMTP_PORT = 25
-RECIPIENTS = ['yojiwata@gmail.com']
+SMTP_HOST = ''
+SMTP_PORT = 0
+RECIPIENTS = ['']
 SUBJECT_PREFIX = 'TSC Search Results @ '
 PLUGIN_PREFIX = 'Plugin ID: '
 HOST_PREFIX = 'Scanned Hosts: '
