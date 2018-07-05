@@ -65,9 +65,11 @@ def main():
 
             out_file_type = config['output']
             to_email = config['email_results']
-            columns = config['columns'].split(',')
-            for i, value in enumerate(columns):
-                columns[i] = value.strip()
+            columns = config['columns']
+            if columns:
+                columns = columns.split(',')
+                for i, value in enumerate(columns):
+                    columns[i] = value.strip()
 
             dump_plugin_output.dump_plugin_data(config['plugin_id'], config['repo_list'], config['host_list'],
                                                 config['ip_range'], config['duplicates'], config['user'],
@@ -76,9 +78,11 @@ def main():
         else:
             out_file_type = args.output
             to_email = args.email_results
-            columns = args.columns.split(',')
-            for i, value in enumerate(columns):
-                columns[i] = value.strip()
+            columns = args.columns
+            if columns:
+                columns = columns.split(',')
+                for i, value in enumerate(columns):
+                    columns[i] = value.strip()
 
             dump_plugin_output.dump_plugin_data(args.plugin_id, args.repos, args.hosts, args.ip_range, args.duplicates,
                                                 '', '')
