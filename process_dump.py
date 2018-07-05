@@ -108,14 +108,15 @@ def create_matrix(data, input_data, is_html, columns):
         result_mat = searchable_mode(data, input_data, result_mat, is_html)
     else:
         for i, host in enumerate(data):
-            temp_list = ''
+            temp_string = ''
             for program in host['CONTENT']:
-                temp_list += program
+                temp_string += program
                 # Skips adding new line HTML tag if output is an HTML file
                 if is_html:
-                    temp_list += HTML_DELIMITER
-
-            result_mat[i] = temp_list
+                    temp_string += HTML_DELIMITER
+            temp_string = temp_string.replace(u'<plugin_output>', u'')
+            temp_string = temp_string.replace(u'</plugin_output>', u'')
+            result_mat[i] = temp_string
 
     return result_mat
 
@@ -151,6 +152,9 @@ def dead_host_info(host, delimiter, columns):
 
 
 def specific_host_columns(host, columns):
+    if 'CONTENT' in columns:
+        columns.remove('CONTENT')
+
     temp = []
     for i, value in enumerate(columns):
         if value.strip() in HOST_VALUES:
@@ -176,7 +180,7 @@ def get_host_info(host_data, html, columns=''):
     for host in host_data:
         # Edge case for a likely dead machine
         if (time.time() - float(host['L_SEEN']) > SECS_PER_WEEK) & (not columns):
-            temp = dead_host_info(host, delimiter)
+            temp = dead_host_info(host, delimiter, columns)
             host_info.append(temp)
             continue
 
@@ -208,7 +212,7 @@ def make_data_frame(data, input_data):
     if input_data:
         data_frame = pd.DataFrame(data, index=range(1, len(data) + 1), columns=input_data)
     else:
-        data_frame = pd.DataFrame(data, index=range(1, len(data) + 1), columns=['Plugin Output:'])
+        data_frame = pd.DataFrame(data, index=range(1, len(data) + 1), columns=['PLUGIN OUTPUT:'])
 
     return data_frame
 
@@ -274,7 +278,7 @@ def write_to_csv(data, input_data, host_data, columns):
 #          host_data: List with host information
 # Output - none, out to file
 def write_to_pdf(data, input_data, host_data, columns):
-    write_to_html(data, input_data, host_data)
+    write_to_html(data, input_data, host_data, columns)
     options = {
         'page-size': 'A4',
         'margin-top': '0.5in',
