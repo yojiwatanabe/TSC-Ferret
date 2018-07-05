@@ -16,7 +16,7 @@ import getpass
 import process_dump
 from securitycenter import SecurityCenter5
 
-HOST = ''
+HOST = 'sec-center-prod-01.uit.tufts.edu'
 OUTPUT_FILE = 'pluginText.dump'
 IP_LENGTH = 4
 
@@ -68,8 +68,9 @@ def get_repo_ids(requested_repo_names, all_repo_data):
 # Output - Boolean value indicating whether or not this information is the most current available
 def is_not_latest_scan(ip_address, scan_date, stored_scans):
     for scan_info in stored_scans:
-        if (ip_address == scan_info['IP']) & (int(scan_date) < int(scan_info['L_SEEN'])):
-            return True
+        if (ip_address == scan_info['IP']):
+            if (int(scan_date) < int(scan_info['L_SEEN'])):
+                return True
 
     return False
 
@@ -113,7 +114,7 @@ def dump_plugin_data(plugin_id, requested_repo_names, host_list, ip_range, allow
     temp_obj = {'ID': '', 'IP': '', 'DNS': '', 'REPO': '', 'CONTENT': []}
 
     for case in output:
-        if is_not_latest_scan(case[u'ip'], case[u'lastSeen'], obj) & (allow_duplicates is False):
+        if (allow_duplicates is False) and is_not_latest_scan(case[u'ip'], case[u'lastSeen'], obj):
             continue
 
         temp_obj['ID'] = obj.__len__()
