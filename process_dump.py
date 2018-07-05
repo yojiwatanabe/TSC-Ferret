@@ -150,7 +150,7 @@ def dead_host_info(host, delimiter):
 # Output - String array with all of the hosts' information
 def get_host_info(host_data, html):
     # Checks if the output is HTML, takes away HTML tags if not, uses alternative delimiter
-    if not html:
+    if ~html:
         delimiter = ALT_DELIMITER
     else:
         delimiter = HTML_DELIMITER
