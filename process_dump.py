@@ -9,15 +9,13 @@ file. For searching this file reads a file given by the user and makes one query
 compares the list with the data output from processDump.py and gives us relevant data
 """
 
-
 import os
 import json
 import time
 import numpy as np
 import pandas as pd
 import pdfkit as pdf
-from re import compile, search 
-
+from re import compile, search
 
 DUMP_FILE = 'pluginText.dump'
 OUTPUT_FILENAME = 'results.'
@@ -69,7 +67,7 @@ def searchable_mode(data, input_data, result_mat, is_html):
         delimiter = ALT_DELIMITER
     else:
         delimiter = HTML_DELIMITER
-        
+
     for i, host in enumerate(data):
         for j, input_line in enumerate(input_data):
             temp_list = ''
@@ -151,6 +149,13 @@ def dead_host_info(host, delimiter, columns):
     return temp
 
 
+#       specific_host_columns()
+#
+#   Returns only specified data from the host as given by the 'columns' argument. Used when the user specifies the
+#   COLUMNS command line argument.
+#   Input  - host: dictionary containing one host's data as read from the dump file
+#            columns: list of strings containing the columns the user wishes to return
+#   Output - temp: list with the specified columns of host data
 def specific_host_columns(host, columns):
     if 'CONTENT' in columns:
         columns.remove('CONTENT')
@@ -158,7 +163,7 @@ def specific_host_columns(host, columns):
     temp = []
     for i, value in enumerate(columns):
         if value.strip() in HOST_VALUES:
-            temp.append(host[value.strip()])
+            temp.append(host[value])
 
     return temp
 
@@ -280,12 +285,12 @@ def write_to_csv(data, input_data, host_data, columns):
 def write_to_pdf(data, input_data, host_data, columns):
     write_to_html(data, input_data, host_data, columns)
     options = {
-        'page-size': 'A4',
-        'margin-top': '0.5in',
-        'margin-right': '0.5in',
+        'page-size'    : 'A4',
+        'margin-top'   : '0.5in',
+        'margin-right' : '0.5in',
         'margin-bottom': '0.5in',
-        'margin-left': '0.5in',
-        'dpi': 225
+        'margin-left'  : '0.5in',
+        'dpi'          : 225
     }
 
     pdf.from_file(HTML_OUTPUT, PDF_OUTPUT, options=options)
