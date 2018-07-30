@@ -52,7 +52,7 @@ ASCII_ART = """             .,..,.,
 # Input  - none
 # Output - argparse Argument Parser object
 def initiate_argparse():
-    parser = argparse.ArgumentParser(description='Helper script to retrieve plugin output from Service Center scans')
+    parser = argparse.ArgumentParser(description='Helper script to retrieve plugin output from Security Center scans')
     plugin_source = parser.add_mutually_exclusive_group(required=True)
 
     plugin_source.add_argument('-P', '--plugin_id', dest='plugin_id', help='Plugin ID for the desired plugin output')

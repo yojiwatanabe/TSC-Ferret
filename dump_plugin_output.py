@@ -4,7 +4,7 @@
 """
 dump_plugin_output.py
 
-This module works with Tenable Security Center's RESTful APIs to retrieve information about system scans. User is asked
+This module works with Tenable Security Center's APIs to retrieve information about system scans. User is asked
 to authenticate their session, after which they are able to get the plugin output from scans performed on hosts. This
 module simply retrieves the data and saves it into 'pluginText.dump', after which it is processed by the 'processDump'
 module and made human-friendly.
