@@ -1,4 +1,4 @@
-# Tenable Security Center Search
+# TSC Ferret
 #### Yoji Watanabe & Saurav Gyawali
 ###### Summer 2018
 Using Tenable Security Center's API, retrieve plugin output from scanned hosts to be saved in a human-friendly format (HTML table). Requires a valid Tenable Security Center account.
@@ -31,7 +31,7 @@ python
 User can also use regular expression for search query. The program will look for characters that match with the regular expression. If the regular expression search finds a result inside the line being searched the program includes the line in the output. The user does not have to specify the program to use regex search. But the user has to be careful while using search queries that contains characters used in regular expression syntax. Such characters have to be escaped using a back slash `\`.  
 
 ### Filters
-There are three available filters in TSC Search. These filters can be used to output data with only the desired ip or repository. 
+There are three available filters in TSC Ferret. These filters can be used to output data with only the desired ip or repository. 
 
 #### Repository Filter
 For getting data based on repository, user can make a text file (.txt) with a single repository per line. For example, if the user needs the data related to `atst01nix001` and `aprd01nix001` repositories, the text file would look like:
@@ -45,10 +45,10 @@ The user would then use `[-R REPO_LIST]` as an optional argument where `REPO_LIS
 For getting data based on IP addresses, user has two choices. One way is to make a text file (.txt) with one IP Address per line. Then the user should use `[-H --host_list HOST_LIST]` as an optional argument where `HOST_LIST` is the text file name. Another way is to specify an IP subnet to query. The user can use `[-i --ip_range IP_RANGE]` as an optional argument where `IP_RANGE` is in the format `xxx.xxx.xxx.xxx/xx` without any spaces in the IP. The subnet should be in CIDR notation.
 
 ### Config File
-Users can save their choice of arguments and credentials in config files that can be read by TSC Search to easily query the scan results. The config file can have any name and should be fed in the format `python run.py -C CONFIG_FILE` where `CONFIG_FILE` is the name of the file that has the user's choices in json format. 
+Users can save their choice of arguments and credentials in config files that can be read by TSC Ferret to easily query the scan results. The config file can have any name and should be fed in the format `python run.py -C CONFIG_FILE` where `CONFIG_FILE` is the name of the file that has the user's choices in json format. 
 A config file can be generated using the script `config_gen.py` which can be run using the command `python config_gen.py`. This script asks the user for choices interactively and stores them in a file with the name specified by user. Note: password is base64 encoded, and thus the config file should not be shared with others, as they will have access to your stored password.
 
-__Note: the configuration file stores a base64 encoded version of the password. **This is not secure.** Unless running the application locally, all those with access to the host running TSC Search will be able to decode your password__
+__Note: the configuration file stores a base64 encoded version of the password. **This is not secure.** Unless running the application locally, all those with access to the host running TSC Ferret will be able to decode your password__
 
 A dummy account has been set up without critical permissions in order to run this script. Email yoji(dot)watanabe(at)tufts(dot)edu for account credentials.
 
