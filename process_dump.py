@@ -97,7 +97,7 @@ def searchable_mode(data, input_data, result_mat, is_html):
 #          E.G. if the second line of my input file is 'ssh', result_mat[0][1] will be all ssh programs installed on
 #          host with ID 1.
 def create_matrix(data, input_data, is_html, columns):
-    if columns and 'CONTENT' not in columns:
+    if columns and 'content' not in map(lambda x: x.lower(), columns):
         return
 
     if input_data:
@@ -109,11 +109,13 @@ def create_matrix(data, input_data, is_html, columns):
     else:
         for i, host in enumerate(data):
             temp_string = ''
-            for program in host['CONTENT']:
-                temp_string += program
+            for line in host['CONTENT']:
+                temp_string += line
+
                 # Skips adding new line HTML tag if output is an HTML file
                 if is_html:
                     temp_string += HTML_DELIMITER
+
             temp_string = temp_string.replace(u'<plugin_output>', u'')
             temp_string = temp_string.replace(u'</plugin_output>', u'')
             result_mat[i] = temp_string
@@ -152,11 +154,14 @@ def dead_host_info(host, delimiter, columns):
 
 
 def specific_host_columns(host, columns):
-    if 'CONTENT' in columns:
-        columns.remove('CONTENT')
+    # if 'content' in columns:
+    #     columns.remove('content')
 
     temp = []
     for i, value in enumerate(columns):
+        if value.lower() == 'content':
+            continue
+
         if value.strip() in HOST_VALUES:
             temp.append(host[value.strip()])
 
@@ -227,8 +232,9 @@ def make_host_frame(data, columns):
     if data is None:
         return
 
-    if columns:
-        host_frame = pd.DataFrame(data, index=range(1, len(data) + 1), columns=columns)
+    if columns and 'content' in map(lambda x: x.upper(), columns):
+        host_frame = pd.DataFrame(data, index=range(1, len(data) + 1), columns=map(lambda x: x.upper(),
+                                                                                   columns).remove('CONTENT'))
     else:
         host_frame = pd.DataFrame(data, index=range(1, len(data) + 1), columns=['Host Info:'])
     return host_frame
