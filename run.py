@@ -79,6 +79,11 @@ def initiate_argparse():
     return parser.parse_args()
 
 
+#   check_valid_output_type()
+#
+# Ensures that the output file type specified by the user is supported by TSC Ferret
+# Input  - file_type: string containing the file type specified
+# Output - none, will exit if unsupported
 def check_valid_output_type(file_type):
     if file_type.lower() not in process_dump.OUTPUT_TYPES:
         print('Unsupported file type!\nSupported file types: %s' % ', '.join(process_dump.OUTPUT_TYPES))

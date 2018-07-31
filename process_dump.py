@@ -153,6 +153,13 @@ def dead_host_info(host, delimiter, columns):
     return temp
 
 
+#       specific_host_columns()
+#
+# Returns information on the host given column arguments. Returns only the host information requested. Helper function
+# to get_host_info().
+# Input  - host: dictionary with host info
+#        - columns: string array with columns to be returned
+# Output - string with the host information to be saved
 def specific_host_columns(host, columns):
     temp = []
     for i, value in enumerate(columns):
@@ -167,7 +174,7 @@ def specific_host_columns(host, columns):
 
 # 		get_host_info()
 #
-# Returns information from the host in a pd.to_html friendly format (string)
+# Returns information on the host in a pd.to_html friendly format (string)
 # Input  - host_data: Dictionary array with host info like DNS, IP, and REPO
 #          csv: Boolean value of if output format is a CSV file
 # Output - String array with all of the hosts' information
@@ -226,8 +233,8 @@ def make_data_frame(data, input_data):
 # Input  - to_check: the list of host information to
 # Output -
 def no_data(to_check):
-    if to_check is not None:
-        return False
+    if to_check is None:
+        return True
     elif to_check[0]:
         return False
 
