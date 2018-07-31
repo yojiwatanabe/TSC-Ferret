@@ -222,6 +222,15 @@ def make_data_frame(data, input_data):
     return data_frame
 
 
+def no_data(to_check):
+    if to_check is None:
+        return True
+    elif not to_check[0]:
+        return True
+
+    return False
+
+
 # 		make_host_frame()
 #
 # Creates the pandas data frame to be converted into an HTML table. Sets up layout according to type of query
@@ -229,7 +238,7 @@ def make_data_frame(data, input_data):
 #          input_data: list of strings that were queried in the plugin output
 # Output - String array with all of the hosts' information
 def make_host_frame(data, columns):
-    if data is None:
+    if no_data(data):
         return
 
     if columns and 'content' in map(lambda x: x.upper(), columns):
