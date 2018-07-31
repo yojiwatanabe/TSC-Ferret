@@ -36,7 +36,8 @@ print
 print "Enter the optional arguments. Leave blank if you do not want to pass these arguments"
 search_queries = raw_input('Name of file with search queries: ')
 repo_list = raw_input('Name of file with list of repositories: ')
-host_list = raw_input('Name of the file with the list of IP addresses ')
+if not repo_list:
+	host_list = raw_input('Name of the file with the list of IP addresses ')
 ip_range = raw_input('IP subnet in CIDR notation ')
 duplicates = raw_input("Do you want duplicate scan results for hosts? (yes/no)") == 'yes'
 email_choice = raw_input("Do you want the results to be emailed? (yes/no)") == 'yes'
