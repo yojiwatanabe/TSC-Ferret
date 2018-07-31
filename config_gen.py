@@ -33,13 +33,14 @@ while output_type not in accepted_types:
 print
 
 # All the optional arguments for the program
-print 'Enter the optional arguments. Leave blank if you dont want to pass these arguments'
+print 'Enter the optional arguments. Leave blank if you do not want to pass these arguments'
 search_queries = raw_input('Name of file with search queries: ')
 repo_list = raw_input('Name of file with list of repositories: ')
 host_list = raw_input('Name of the file with the list of IP addresses ')
 ip_range = raw_input('IP subnet in CIDR notation ')
 duplicates = raw_input('Do you want duplicate scan results for hosts? (yes/no) ') == 'yes'
 email_choice = raw_input('Do you want the results to be emailed? (yes/no) ') == 'yes'
+email_choice = raw_input('What columns would you like to be filtered in? (IP, ) ') == 'yes'
 
 # Make a dictionary out of the choices
 js = {'user': user, 'pass': passwd, 'plugin_id': plugin_id, 'search_list': search_queries, 'repo_list': repo_list,
