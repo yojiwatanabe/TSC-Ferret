@@ -154,9 +154,6 @@ def dead_host_info(host, delimiter, columns):
 
 
 def specific_host_columns(host, columns):
-    # if 'content' in columns:
-    #     columns.remove('content')
-
     temp = []
     for i, value in enumerate(columns):
         if value.lower() == 'content':
@@ -222,13 +219,19 @@ def make_data_frame(data, input_data):
     return data_frame
 
 
+#       no_data()
+#
+# Helper function used by make_host_frame() in case no host columns were specified in a columns argument. Checks if the
+# given list is empty, meaning specific_host_columns() has not saved any columns specific to the host.
+# Input  - to_check: the list of host information to
+# Output -
 def no_data(to_check):
-    if to_check is None:
-        return True
-    elif not to_check[0]:
-        return True
+    if to_check is not None:
+        return False
+    elif to_check[0]:
+        return False
 
-    return False
+    return True
 
 
 # 		make_host_frame()
@@ -238,7 +241,7 @@ def no_data(to_check):
 #          input_data: list of strings that were queried in the plugin output
 # Output - String array with all of the hosts' information
 def make_host_frame(data, columns):
-    if no_data(data):
+    if columns and no_data(data):
         return
 
     if columns and 'content' in map(lambda x: x.upper(), columns):
