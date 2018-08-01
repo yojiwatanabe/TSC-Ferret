@@ -162,12 +162,12 @@ def dead_host_info(host, delimiter, columns):
 # Output - string with the host information to be saved
 def specific_host_columns(host, columns):
     temp = []
-    for i, value in enumerate(columns):
+    for value in columns:
         if value.lower() == 'content':
             continue
 
-        if value.strip() in HOST_VALUES:
-            temp.append(host[value.strip()])
+        if value.strip().upper() in HOST_VALUES:
+            temp.append(host[value.strip().upper()])
 
     return temp
 
@@ -235,7 +235,7 @@ def make_data_frame(data, input_data):
 def no_data(to_check):
     if to_check is None:
         return True
-    elif to_check[0]:
+    elif to_check[0] is not None:
         return False
 
     return True
@@ -251,7 +251,7 @@ def make_host_frame(data, columns):
     if columns and no_data(data):
         return
 
-    if columns and 'content' in map(lambda x: x.upper(), columns):
+    if columns and 'CONTENT' in map(lambda x: x.upper(), columns):
         host_frame = pd.DataFrame(data, index=range(1, len(data) + 1), columns=map(lambda x: x.upper(),
                                                                                    columns).remove('CONTENT'))
     else:

@@ -68,7 +68,7 @@ def initiate_argparse():
                                                                   '(e.g. --ip_range 127.0.0.1-192.168.0.1)')
     parser.add_argument('-d', '--allow_duplicates', dest='duplicates', help='Change from default behavior of only '
                         'outputting latest scan results to show all results', default=False, action='store_true')
-    parser.add_argument('-e', '--email_results', dest='email_results', help='Email results of TSC Search to the given '
+    parser.add_argument('-e', '--email_results', dest='email_results', help='Email results of TSC Ferret to the given '
                         'recipients', default=False, action='store_true')
     parser.add_argument('-o', '--output_type', dest='output', help='Change from default html output to a csv, pdf,'
                         ' or json file', default='html')
