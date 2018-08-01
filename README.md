@@ -48,6 +48,7 @@ User can specify the plugin they would wish to retrieve the scan data for. User 
     * `-R REPOS` allows user to filter for certain repositories (see Repository Filter section below)
     * `-H HOSTS` allows user to filter for certain hosts (see IP Address + IP Range filter section below)
     * `-i IP_RANGE` allows user to filter for certain IPs (see IP Address + IP Range filter section below)
+    * `-c COLUMNS` filters in only the specified host columns (DNS, IP, MAC, REPO, L_SEEN) and content (CONTENT)
     * `-d` allows duplicates to be shown in table, default behavior is to only show latest scan result
     * `-e` will email the results to user-specified recipients (see Emailing Results) below
     * `-o` changes the output file type from the default (HTML) to one of four total choices: HTML, PDF, CSV, and JSON
@@ -76,6 +77,11 @@ The user would then use `[-R REPO_LIST]` as an optional argument where `REPO_LIS
 #### IP Address + IP Subnet Filter
 For getting data based on IP addresses, user has two choices. One way is to make a text file (.txt) with one IP Address per line. Then the user should use `[-H --host_list HOST_LIST]` as an optional argument where `HOST_LIST` is the text file name. Another way is to specify an IP subnet to query. The user can use `[-i --ip_range IP_RANGE]` as an optional argument where `IP_RANGE` is in the format `xxx.xxx.xxx.xxx/xx` without any spaces in the IP. The subnet should be in CIDR notation.
 
+#### Column Filter
+For filtering in only specific data, users can specify the columns to return. By default, the host's DNS, IP, and MAC address, repository, and last seen date. These columns can be specified by passing in a list of the desired data with the column argument.
+
+For example. including `-c "DNS, MAC, L_SEEN, CONTENT"` with the program call will filter in only these datapoints, not returning the IP address and repository. Similarly, `-c CONTENT` will make the program only return the plugin output" 
+
 ### Config File
 Users can save their choice of arguments and credentials in config files that can be read by TSC Ferret to easily query the scan results. The config file can have any name and should be fed in the format `python run.py -C CONFIG_FILE` where `CONFIG_FILE` is the name of the file that has the user's choices in json format. 
 A config file can be generated using the script `config_gen.py` which can be run using the command `python config_gen.py`. This script asks the user for choices interactively and stores them in a file with the name specified by user. Note: password is base64 encoded, and thus the config file should not be shared with others, as they will have access to your stored password.
@@ -103,20 +109,20 @@ A dummy account has been set up without critical permissions in order to run thi
 The user can choose to email the resulting table (in CSV or HTML format) to a list of recipients. This is done by connecting to a user-specified SMTP server, specified in the global variables in `email_results.py` lines 19, 20. Recipients are added in line 21. Results are sent as an email attachment along with a short summary of the query in the body of the email. 
 (Note: some email providers may filter these reports as spam/junk)
 
-### Examples
+### Examples Use Cases
 * Find all software running on hosts (plugin 22869):
 ```
-python run.py 22869
-```
-* Find software version history on host 127.0.0.1 (plugin 22869):
-```
-python run.py -d -i 127.0.0.1/32 22869
+python run.py -P 22869
 ```
 * Find certain software, specified in programs.txt, running on hosts, output as pdf:
 ```
-python run.py -s programs.txt 22869 -o pdf
+python run.py -s programs.txt -o pdf -P 22869
 ```
-* Find if hosts are ARP, ICMP, TCP, or UDP ping-able by Nessus, email results in a JSON file:
+* Find software version history on host 127.0.0.1 (plugin 22869) an only display plugin output:
 ```
-python -e run.py 10180 -o json
+python run.py -d -i 127.0.0.1/32 -c CONTENT -P 22869
+```
+* Find if hosts in the `win01dev-repository` are ARP, ICMP, TCP, or UDP ping-able by Nessus, email results in a JSON file:
+```
+python -e run.py -P 10180 -R win01dev-repository -o json
 ```
