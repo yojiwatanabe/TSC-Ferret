@@ -113,7 +113,6 @@ def main():
                                                 config['ip_range'], config['duplicates'], config['user'],
                                                 b64decode(config['pass']))
             process_dump.create_table(out_file_type, columns, config['search_list'])
-
         else:
             out_file_type = args.output
             to_email = args.email_results

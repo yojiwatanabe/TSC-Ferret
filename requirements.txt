@@ -2,13 +2,3 @@ numpy>=1.14.0
 pandas>=0.23.0
 pdfkit==0.6.1
 pySecurityCenter==3.0.3
-{"user": "jane_doe",
- "pass": "base_64_is_not_encryption",
- "duplicates": false,
- "host_list": "",
- "plugin_id": "10180",
- "output": "csv",
- "search_list": "",
- "repo_list": "repos.txt",
- "ip_range": "",
- "columns": ""}
