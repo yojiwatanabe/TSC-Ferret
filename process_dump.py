@@ -251,9 +251,9 @@ def make_host_frame(data, columns):
     if columns and no_data(data):
         return
 
-    if columns and 'CONTENT' in map(lambda x: x.upper(), columns):
-        host_frame = pd.DataFrame(data, index=range(1, len(data) + 1), columns=map(lambda x: x.upper(),
-                                                                                   columns).remove('CONTENT'))
+    columns_upper = list(set(i.lower() for i in columns))
+    if columns and 'CONTENT' in columns_upper:
+        host_frame = pd.DataFrame(data, index=range(1, len(data) + 1), columns=columns_upper.remove('CONTENT'))
     else:
         host_frame = pd.DataFrame(data, index=range(1, len(data) + 1), columns=['Host Info:'])
     return host_frame
