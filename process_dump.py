@@ -10,13 +10,12 @@ compares the list with the data output from processDump.py and gives us relevant
 """
 
 
-import os
 import json
 import time
 import numpy as np
 import pandas as pd
 import pdfkit as pdf
-from re import compile, search 
+from re import compile, search
 
 
 DUMP_FILE = 'pluginText.dump'
@@ -275,8 +274,8 @@ def write_to_html(data, input_data, host_data, columns):
     data_frame = make_data_frame(data, input_data)
 
     pd.set_option('display.max_colwidth', -1)
-
     full_frame = pd.concat([host_frame, data_frame], axis=1)
+
     full_frame.to_html(HTML_OUTPUT, escape=False)
 
     return
@@ -316,9 +315,7 @@ def write_to_pdf(data, input_data, host_data, columns):
         'margin-left': '0.5in',
         'dpi': 225
     }
-
     pdf.from_file(HTML_OUTPUT, PDF_OUTPUT, options=options)
-    os.remove(HTML_OUTPUT)
 
     return
 
