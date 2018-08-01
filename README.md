@@ -101,7 +101,8 @@ A dummy account has been set up without critical permissions in order to run thi
  "output": "csv", 
  "search_list": "", 
  "repo_list": "repos.txt", 
- "ip_range": ""}
+ "ip_range": "",
+ "columns": ""}
 ```
 
 
@@ -122,7 +123,7 @@ python run.py -s programs.txt -o pdf -P 22869
 ```
 python run.py -d -i 127.0.0.1/32 -c CONTENT -P 22869
 ```
-* Find if hosts in the `win01dev-repository` are ARP, ICMP, TCP, or UDP ping-able by Nessus, email results in a JSON file:
+* Find if hosts in the `win01dev-repository` (repository name saved to the repo_list text file) are ARP, ICMP, TCP, or UDP ping-able by Nessus, email results in a JSON file:
 ```
-python -e run.py -P 10180 -R win01dev-repository -o json
+python -e run.py -P 10180 -R repo_list -o json
 ```
