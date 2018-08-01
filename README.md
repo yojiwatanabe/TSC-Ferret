@@ -46,8 +46,8 @@ User can specify the plugin they would wish to retrieve the scan data for. User 
     * `-P PLUGIN_ID` the desired plugin ID whose output will be retrieved
     * `-s SEARCH LIST` allows user to query each plugin output for keywords (see Search Queries section below)
     * `-R REPOS` allows user to filter for certain repositories (see Repository Filter section below)
-    * `-H HOSTS` allows user to filter for certain hosts (see IP Address + IP Range filter section below)
-    * `-i IP_RANGE` allows user to filter for certain IPs (see IP Address + IP Range filter section below)
+    * `-H HOSTS` allows user to filter for certain IP addresses (see IP Address + IP Range filter section below)
+    * `-i IP_RANGE` allows user to filter for certain IP addresses (see IP Address + IP Range filter section below)
     * `-c COLUMNS` filters in only the specified host columns (DNS, IP, MAC, REPO, L_SEEN) and content (CONTENT)
     * `-d` allows duplicates to be shown in table, default behavior is to only show latest scan result
     * `-e` will email the results to user-specified recipients (see Emailing Results) below
@@ -55,7 +55,7 @@ User can specify the plugin they would wish to retrieve the scan data for. User 
 3. Open results with an HTML, CSV, or PDF viewer, according to the chosen output
 
 ### Search Queries
-Tenable Security Center Search allows for special queries for all plugins. This gives the user more control over how they wish to retrieve the plugin output. A text file (.txt) with newline separated words can be used to specify which word to query. For example, if one was interested in `gcc`, `make`, and `python` on different hosts, the text file would look like:
+Tenable Security Center Ferret allows for special queries for all plugins. This gives the user more control over how they wish to retrieve the plugin output. A text file (.txt) with newline separated words can be used to specify which word to query. For example, if one was interested in `gcc`, `make`, and `python` on different hosts, the text file would look like:
 ```
 gcc
 make
