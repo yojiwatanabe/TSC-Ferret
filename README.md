@@ -54,15 +54,6 @@ User can specify the plugin they would wish to retrieve the scan data for. User 
     * `-o` changes the output file type from the default (HTML) to one of four total choices: HTML, PDF, CSV, and JSON
 3. Open results with an HTML, CSV, or PDF viewer, according to the chosen output
 
-### Search Queries
-Tenable Security Center Ferret allows for special queries for all plugins. This gives the user more control over how they wish to retrieve the plugin output. A text file (.txt) with newline separated words can be used to specify which word to query. For example, if one was interested in `gcc`, `make`, and `python` on different hosts, the text file would look like:
-```
-gcc
-make
-python
-``` 
-User can also use regular expression for search query. The program will look for characters that match with the regular expression. If the regular expression search finds a result inside the line being searched the program includes the line in the output. The user does not have to specify the program to use regex search. But the user has to be careful while using search queries that contains characters used in regular expression syntax. Such characters have to be escaped using a back slash `\`.  
-
 ### Filters
 There are three available filters in TSC Ferret. These filters can be used to output data with only the desired ip or repository. 
 
@@ -82,7 +73,22 @@ For filtering in only specific data, users can specify the columns to return. By
 
 For example. including `-c "DNS, MAC, L_SEEN, CONTENT"` with the program call will filter in only these datapoints, not returning the IP address and repository. Similarly, `-c CONTENT` will make the program only return the plugin output" 
 
-### Config File
+### Features
+#### Search Queries
+Tenable Security Center Ferret allows for special queries for all plugins. This gives the user more control over how they wish to retrieve the plugin output. A text file (.txt) with newline separated words can be used to specify which word to query. For example, if one was interested in `gcc`, `make`, and `python` on different hosts, the text file would look like:
+```
+gcc
+make
+python
+``` 
+User can also use regular expression for search query. The program will look for characters that match with the regular expression. If the regular expression search finds a result inside the line being searched the program includes the line in the output. The user does not have to specify the program to use regex search. But the user has to be careful while using search queries that contains characters used in regular expression syntax. Such characters have to be escaped using a back slash `\`.  
+
+#### Highlight on hosts not scanned recently
+TSC Feret is able to highlight the hosts that have not been scanned for a week. This feature is enabled for HTML and PDF outputs. The font color of the hosts not scanned within a week is set to red. Users can then easily start investigating dead hosts. However, this feature is disabled if the user wants the output data to be presented in specific columns they want. 
+
+
+
+#### Config File
 Users can save their choice of arguments and credentials in config files that can be read by TSC Ferret to easily query the scan results. The config file can have any name and should be fed in the format `python run.py -C CONFIG_FILE` where `CONFIG_FILE` is the name of the file that has the user's choices in json format. 
 A config file can be generated using the script `config_gen.py` which can be run using the command `python config_gen.py`. This script asks the user for choices interactively and stores them in a file with the name specified by user. Note: password is base64 encoded, and thus the config file should not be shared with others, as they will have access to your stored password.
 
@@ -106,7 +112,7 @@ A dummy account has been set up without critical permissions in order to run thi
 ```
 
 
-### Emailing Results
+#### Emailing Results
 The user can choose to email the resulting table (in CSV or HTML format) to a list of recipients. This is done by connecting to a user-specified SMTP server, specified in the global variables in `email_results.py` lines 19, 20. Recipients are added in line 21. Results are sent as an email attachment along with a short summary of the query in the body of the email. 
 (Note: some email providers may filter these reports as spam/junk)
 
