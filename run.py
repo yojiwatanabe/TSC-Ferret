@@ -106,8 +106,17 @@ def main():
             columns = config['columns']
             if columns:
                 columns = columns.split(',')
-                for i, value in enumerate(columns):
-                    columns[i] = value.strip()
+                temp_columns = []
+                for value in columns:
+                    value = value.strip()
+                    if value.upper() not in process_dump.HOST_VALUES:
+                        print value + " column does not exist"
+                        continue
+                    temp_columns.append(value)
+                columns = temp_columns
+                if not columns:
+                    print "None of the specified columns exists. Showing all data instead"
+
 
             dump_plugin_output.dump_plugin_data(config['plugin_id'], config['repo_list'], config['host_list'],
                                                 config['ip_range'], config['duplicates'], config['user'],
@@ -119,8 +128,16 @@ def main():
             columns = args.columns
             if columns:
                 columns = columns.split(',')
-                for i, value in enumerate(columns):
-                    columns[i] = value.strip()
+                temp_columns = []
+                for value in columns:
+                    value = value.strip()
+                    if value.upper() not in process_dump.HOST_VALUES:
+                        print value + " column does not exist"
+                        continue
+                    temp_columns.append(value)
+                columns = temp_columns
+                if not columns:
+                    print "None of the specified columns exists. Showing all data instead"
 
             dump_plugin_output.dump_plugin_data(args.plugin_id, args.repos, args.hosts, args.ip_range, args.duplicates,
                                                 '', '')

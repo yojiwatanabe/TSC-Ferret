@@ -253,9 +253,7 @@ def make_host_frame(data, columns):
         columns_upper = list(set(i.upper() for i in columns))
         if 'CONTENT' in columns_upper:
             columns_upper.remove('CONTENT')
-            host_frame = pd.DataFrame(data, index=range(1, len(data) + 1), columns=columns_upper)
-        else:
-            host_frame = pd.DataFrame(data, index=range(1, len(data) + 1), columns=columns_upper)
+        host_frame = pd.DataFrame(data, index=range(1, len(data) + 1), columns=columns_upper)
 
     else:
         host_frame = pd.DataFrame(data, index=range(1, len(data) + 1), columns=['Host Info:'])
