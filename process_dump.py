@@ -17,7 +17,6 @@ import pandas as pd
 import pdfkit as pdf
 from re import compile, search
 
-
 DUMP_FILE = 'pluginText.dump'
 OUTPUT_FILENAME = 'results.'
 HTML_OUTPUT = OUTPUT_FILENAME + 'html'
@@ -68,7 +67,7 @@ def searchable_mode(data, input_data, result_mat, is_html):
         delimiter = ALT_DELIMITER
     else:
         delimiter = HTML_DELIMITER
-        
+
     for i, host in enumerate(data):
         for j, input_line in enumerate(input_data):
             temp_list = ''
@@ -306,12 +305,12 @@ def write_to_csv(data, input_data, host_data, columns):
 def write_to_pdf(data, input_data, host_data, columns):
     write_to_html(data, input_data, host_data, columns)
     options = {
-        'page-size': 'A4',
-        'margin-top': '0.5in',
-        'margin-right': '0.5in',
+        'page-size'    : 'A4',
+        'margin-top'   : '0.5in',
+        'margin-right' : '0.5in',
         'margin-bottom': '0.5in',
-        'margin-left': '0.5in',
-        'dpi': 225
+        'margin-left'  : '0.5in',
+        'dpi'          : 225
     }
     pdf.from_file(HTML_OUTPUT, PDF_OUTPUT, options=options)
 
