@@ -92,6 +92,26 @@ def check_valid_output_type(file_type):
     return
 
 
+#       clean_columns()
+#
+# Function to remove all unknown column names from the user-specified columns list. Returns a list of columns that exist
+# in the host data returned by SecurityCenter
+def clean_columns(in_columns):
+    columns = in_columns.split(',')
+    temp_columns = []
+    for value in columns:
+        value = value.strip()
+        if value.upper() not in process_dump.HOST_VALUES:
+            print value + " column does not exist, removing from output columns"
+            continue
+        temp_columns.append(value)
+
+    if not temp_columns:
+        print "None of the specified columns exists. Showing all data instead"
+
+    return temp_columns
+
+
 def main():
     args = initiate_argparse()
     print ASCII_ART
@@ -100,23 +120,14 @@ def main():
         if args.config:
             f = open(args.config, 'r')
             config = json.load(f)
+            f.close()
 
             out_file_type = config['output']
             to_email = config['email_results']
             columns = config['columns']
-            if columns:
-                columns = columns.split(',')
-                temp_columns = []
-                for value in columns:
-                    value = value.strip()
-                    if value.upper() not in process_dump.HOST_VALUES:
-                        print value + " column does not exist"
-                        continue
-                    temp_columns.append(value)
-                columns = temp_columns
-                if not columns:
-                    print "None of the specified columns exists. Showing all data instead"
 
+            if columns:
+                columns = clean_columns(columns)
 
             dump_plugin_output.dump_plugin_data(config['plugin_id'], config['repo_list'], config['host_list'],
                                                 config['ip_range'], config['duplicates'], config['user'],
@@ -125,19 +136,9 @@ def main():
         else:
             out_file_type = args.output
             to_email = args.email_results
-            columns = args.columns
-            if columns:
-                columns = columns.split(',')
-                temp_columns = []
-                for value in columns:
-                    value = value.strip()
-                    if value.upper() not in process_dump.HOST_VALUES:
-                        print value + " column does not exist"
-                        continue
-                    temp_columns.append(value)
-                columns = temp_columns
-                if not columns:
-                    print "None of the specified columns exists. Showing all data instead"
+
+            if args.columns:
+                columns = clean_columns(args.columns)
 
             dump_plugin_output.dump_plugin_data(args.plugin_id, args.repos, args.hosts, args.ip_range, args.duplicates,
                                                 '', '')
