@@ -9,7 +9,7 @@ file. For searching this file reads a file given by the user and makes one query
 compares the list with the data output from processDump.py and gives us relevant data
 """
 
-import os
+
 import json
 import time
 import numpy as np
@@ -95,7 +95,7 @@ def searchable_mode(data, input_data, result_mat, is_html):
 #          E.G. if the second line of my input file is 'ssh', result_mat[0][1] will be all ssh programs installed on
 #          host with ID 1.
 def create_matrix(data, input_data, is_html, columns):
-    if columns and 'CONTENT' not in columns:
+    if columns and 'content' not in map(lambda x: x.lower(), columns):
         return
 
     if input_data:
@@ -107,11 +107,13 @@ def create_matrix(data, input_data, is_html, columns):
     else:
         for i, host in enumerate(data):
             temp_string = ''
-            for program in host['CONTENT']:
-                temp_string += program
+            for line in host['CONTENT']:
+                temp_string += line
+
                 # Skips adding new line HTML tag if output is an HTML file
                 if is_html:
                     temp_string += HTML_DELIMITER
+
             temp_string = temp_string.replace(u'<plugin_output>', u'')
             temp_string = temp_string.replace(u'</plugin_output>', u'')
             result_mat[i] = temp_string
@@ -151,26 +153,26 @@ def dead_host_info(host, delimiter, columns):
 
 #       specific_host_columns()
 #
-#   Returns only specified data from the host as given by the 'columns' argument. Used when the user specifies the
-#   COLUMNS command line argument.
-#   Input  - host: dictionary containing one host's data as read from the dump file
-#            columns: list of strings containing the columns the user wishes to return
-#   Output - temp: list with the specified columns of host data
+# Returns information on the host given column arguments. Returns only the host information requested. Helper function
+# to get_host_info().
+# Input  - host: dictionary with host info
+#        - columns: string array with columns to be returned
+# Output - string with the host information to be saved
 def specific_host_columns(host, columns):
-    if 'CONTENT' in columns:
-        columns.remove('CONTENT')
-
     temp = []
-    for i, value in enumerate(columns):
-        if value.strip() in HOST_VALUES:
-            temp.append(host[value])
+    for value in columns:
+        if value.lower() == 'content':
+            continue
+
+        if value.strip().upper() in HOST_VALUES:
+            temp.append(host[value.strip().upper()])
 
     return temp
 
 
 # 		get_host_info()
 #
-# Returns information from the host in a pd.to_html friendly format (string)
+# Returns information on the host in a pd.to_html friendly format (string)
 # Input  - host_data: Dictionary array with host info like DNS, IP, and REPO
 #          csv: Boolean value of if output format is a CSV file
 # Output - String array with all of the hosts' information
@@ -222,6 +224,21 @@ def make_data_frame(data, input_data):
     return data_frame
 
 
+#       no_data()
+#
+# Helper function used by make_host_frame() in case no host columns were specified in a columns argument. Checks if the
+# given list is empty, meaning specific_host_columns() has not saved any columns specific to the host.
+# Input  - to_check: the list of host information to
+# Output -
+def no_data(to_check):
+    if to_check is None:
+        return True
+    elif to_check[0] is not None:
+        return False
+
+    return True
+
+
 # 		make_host_frame()
 #
 # Creates the pandas data frame to be converted into an HTML table. Sets up layout according to type of query
@@ -229,11 +246,14 @@ def make_data_frame(data, input_data):
 #          input_data: list of strings that were queried in the plugin output
 # Output - String array with all of the hosts' information
 def make_host_frame(data, columns):
-    if data is None:
+    if columns and no_data(data):
         return
+    elif columns:
+        columns_upper = list(set(i.upper() for i in columns))
+        if 'CONTENT' in columns_upper:
+            columns_upper.remove('CONTENT')
+        host_frame = pd.DataFrame(data, index=range(1, len(data) + 1), columns=columns_upper)
 
-    if columns:
-        host_frame = pd.DataFrame(data, index=range(1, len(data) + 1), columns=columns)
     else:
         host_frame = pd.DataFrame(data, index=range(1, len(data) + 1), columns=['Host Info:'])
     return host_frame
@@ -251,8 +271,8 @@ def write_to_html(data, input_data, host_data, columns):
     data_frame = make_data_frame(data, input_data)
 
     pd.set_option('display.max_colwidth', -1)
-
     full_frame = pd.concat([host_frame, data_frame], axis=1)
+
     full_frame.to_html(HTML_OUTPUT, escape=False)
 
     return
@@ -292,9 +312,7 @@ def write_to_pdf(data, input_data, host_data, columns):
         'margin-left'  : '0.5in',
         'dpi'          : 225
     }
-
     pdf.from_file(HTML_OUTPUT, PDF_OUTPUT, options=options)
-    os.remove(HTML_OUTPUT)
 
     return
 

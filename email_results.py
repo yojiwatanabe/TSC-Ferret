@@ -19,14 +19,14 @@ from email.mime.application import MIMEApplication
 SMTP_HOST = ''
 SMTP_PORT = 0
 RECIPIENTS = ['']
-SUBJECT_PREFIX = 'TSC Search Results @ '
+SUBJECT_PREFIX = 'TSC Ferret Results @ '
 PLUGIN_PREFIX = 'Plugin ID: '
 HOST_PREFIX = 'Scanned Hosts: '
 REPO_PREFIX = 'Scanned Repositories: '
 IP_RANGE_PREFIX = 'Scanned IP Range (CIDR): '
 SEARCH_PREFIX = 'Search Queries: '
 DUPLICATE_MESSAGE = 'Allowing duplicates'
-SENDER_ADDRESS = 'tsc_search_notifier@tufts.edu'
+SENDER_ADDRESS = 'tsc_ferret_notifier@tufts.edu'
 BODY_POSTFIX = '\n\n==================================================\nTHIS IS AN AUTOMATED MESSAGE, DO NOT RESPOND'
 
 
@@ -73,10 +73,10 @@ def get_subject_line():
 #       craft_body()
 #
 # Function that crafts the body of the email. Information in the body is descriptive of what kind of queries were run in
-# the instance of TSC Search whose results are being emailed. Adds all information that may be useful.
+# the instance of TSC Ferret whose results are being emailed. Adds all information that may be useful.
 # Input  - plugin_id: string with plugin ID that was queried
 #          hosts: string with hosts that were queried (if any)
-#          repos: string with repost that were queried (if any)
+#          repos: string with repos that were queried (if any)
 #          ip_range: string with CIDR-formatted IP range queried (if any)
 #          search_list: string list with text that was queried (if any)
 #          duplicates: boolean value of if duplicates were allowed
@@ -84,7 +84,7 @@ def get_subject_line():
 def craft_body(plugin_id, hosts, repos, ip_range, search_list, duplicates):
     info = PLUGIN_PREFIX + plugin_id
 
-    # Add information to body about the configuration of the TSC Search instance
+    # Add information to body about the configuration of the TSC Ferret instance
     if hosts:
         host_strings = process_dump.read_input(hosts)
         info = info + '\n' + HOST_PREFIX + ', '.join(host_strings)

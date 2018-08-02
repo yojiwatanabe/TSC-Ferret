@@ -4,7 +4,7 @@
 """
 dump_plugin_output.py
 
-This module works with Tenable Security Center's RESTful APIs to retrieve information about system scans. User is asked
+This module works with Tenable Security Center's APIs to retrieve information about system scans. User is asked
 to authenticate their session, after which they are able to get the plugin output from scans performed on hosts. This
 module simply retrieves the data and saves it into 'pluginText.dump', after which it is processed by the 'processDump'
 module and made human-friendly.
@@ -16,9 +16,8 @@ import getpass
 import process_dump
 from securitycenter import SecurityCenter5
 
-HOST = ''
+HOST = 'sec-center-prod-01.uit.tufts.edu'
 OUTPUT_FILE = 'pluginText.dump'
-IP_LENGTH = 4
 
 
 # 		login_sc()
@@ -101,7 +100,6 @@ def dump_plugin_data(plugin_id, requested_repo_names, host_list, ip_range, allow
     if host_list:
         hosts = process_dump.read_input(host_list)
         arg_tuples.append(('ip', '=', ",".join(hosts)))
-
     elif ip_range:
         arg_tuples.append(('ip', '=', ip_range))
 

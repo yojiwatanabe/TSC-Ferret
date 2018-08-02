@@ -8,10 +8,10 @@ results.csv
 __pycache__/
 *.py[cod]
 *$py.class
+*.pyc
 
 # Distribution / packaging
 .Python
 
 # IDE
 .idea/
-

@@ -13,6 +13,38 @@ import dump_plugin_output
 from sys import exit
 from base64 import b64decode
 
+ASCII_ART = """             .,..,.,
+         .***//***/(//((/           _________   ______     ______
+           *,**,//((//(( .*.,      |  _   _  |.' ____ \  .' ___  |
+      .,,./.,,****/***.,(((/,      |_/ | | \_|| (___ \_|/ .'   \_|
+     ..,* .   , ,  .     ,/(/,,        | |     _.____`. | |
+     .,,.                 ./#,.       _| |_   | \____) |\ `.___.'\\
+      .       .   .   .,/*,./*,.     |_____|   \______.' `.____ .'
+          *(//.**,.,/(/%%%*,,,.     ________                               _
+         .*#&(**((*/#%&@&&%,.*.    |_   __  |                             / |_
+  ,...   ,*//,*//*/%%%%%%*,/         | |_ \_|.---.  _ .--.  _ .--.  .---.`| |-'
+  *,*,,. ,/(*     ,,*/*/%&%./.       |  _|  / /__\\\\[ `/'`\][ `/'`\]/ /__\\\\| |
+ ./****,  .*      ..,*/,(((##(.     _| |_   | \__., | |     | |    | \__.,| |,
+./***/(*(,.       ../...*%%%%%(*   |_____|   '.__.'[___]   [___]    '.__.'\__/
+,//*/(/(((//,.     ..,*%/%%&&&%(#,,,..  ..
+.///((##(##(##(%&&&&%%%%&&&&&&&&%%##%%%%%%#/,
+.(((((###/%%#%%&%#&%&&%&&&&@&&&&%%%#%%%%&&%%%#/.
+.((###%%##%%%%%&&&&&%%&&&@@&&&&&%%%#&&&&&&&&&%#*
+./#(#%%%#%%%%&&&&&&&&&&&&&@@@@@&&&%%%%%%&&&&&&&&%#/.
+ (#%%%%%%%%%&&&&&&@&@&&&&@@@@@@@&&%%%%%&&&&&&&&&&&%/.
+,##%%%&&&&&&&&&&&&&&@@&@@@@@@@@@@&%%%%%%&&&&&&&&&&&&%/,,,.,,...
+,#%%%%%&&&&&&&&&@@@@@@@@@@@@@@@@@&%%%&&&&&&&&&&&&&&&&&&&&&&&&&&&&%%#(*,.
+*%%%%%&&&&&&@&@@@@@@@@@@@@@@@@@@@&&%%&&&&&&&@@@@@&&&&&@@@@@@@@@@@&&@&&&&&%*
+,#%%&&&&&@&@@@@@@@&@@@@@@@@@@@@@@@&&%%&&&&&&@@@@@@&@@@@@@@@@@@@@@@@@@@@&&&%,
+ /%%&&&@&@@&@@@@@@@@@@@@@@@@@@@@@@@&%&&&&&&&&&&&&&&@@@@@@@@@@@@@@@@@@@@@@@@&(
+  (%&&&@@@@@@&@@@&&@@@@@@&@@@@@@@@@&&&&&&&&&&&&&&&&&&&@@@@@@@@@@@@@@@&@&@@@&/
+  ,%%&&@@@@@@@@@@&&&@@@@@@@@@@@@@@@@&&&&&&&&&&&&&%%##((///**////(#&@@@@@@@@&/.
+  *%&@@@@@@/*(%&&@@&@@@@@&&@@@@@@@@@@@@@&&%%##((//**,...         ..,,(&@@@/.
+  %&@@@&@@&//(#%&&&&@@@@@&&@@@@@@@&&&&&%%%%%%###((//
+  /&&(,@%,@&(#////#&@@@@&@@&&@%&&%###((//**,,,.
+                  /#&/@@@*@@&&%&&%(*.
+"""
+
 
 #       initiate_argparse()
 #
@@ -20,7 +52,7 @@ from base64 import b64decode
 # Input  - none
 # Output - argparse Argument Parser object
 def initiate_argparse():
-    parser = argparse.ArgumentParser(description='Helper script to retrieve plugin output from Service Center scans')
+    parser = argparse.ArgumentParser(description='Helper script to retrieve plugin output from Security Center scans')
     plugin_source = parser.add_mutually_exclusive_group(required=True)
 
     plugin_source.add_argument('-P', '--plugin_id', dest='plugin_id', help='Plugin ID for the desired plugin output')
@@ -36,7 +68,7 @@ def initiate_argparse():
                                                                   '(e.g. --ip_range 127.0.0.1-192.168.0.1)')
     parser.add_argument('-d', '--allow_duplicates', dest='duplicates', help='Change from default behavior of only '
                         'outputting latest scan results to show all results', default=False, action='store_true')
-    parser.add_argument('-e', '--email_results', dest='email_results', help='Email results of TSC Search to the given '
+    parser.add_argument('-e', '--email_results', dest='email_results', help='Email results of TSC Ferret to the given '
                         'recipients', default=False, action='store_true')
     parser.add_argument('-o', '--output_type', dest='output', help='Change from default html output to a csv, pdf,'
                         ' or json file', default='html')
@@ -47,11 +79,11 @@ def initiate_argparse():
     return parser.parse_args()
 
 
-#       check_valid_output_type
+#   check_valid_output_type()
 #
-# Function to check if the user given file type is valid or not
-# Input   - file type string
-# Output  - none
+# Ensures that the output file type specified by the user is supported by TSC Ferret
+# Input  - file_type: string containing the file type specified
+# Output - none, will exit if unsupported
 def check_valid_output_type(file_type):
     if file_type.lower() not in process_dump.OUTPUT_TYPES:
         print('Unsupported file type!\nSupported file types: %s' % ', '.join(process_dump.OUTPUT_TYPES))
@@ -60,35 +92,53 @@ def check_valid_output_type(file_type):
     return
 
 
+#       clean_columns()
+#
+# Function to remove all unknown column names from the user-specified columns list. Returns a list of columns that exist
+# in the host data returned by SecurityCenter
+def clean_columns(in_columns):
+    columns = in_columns.split(',')
+    temp_columns = []
+    for value in columns:
+        value = value.strip()
+        if value.upper() not in process_dump.HOST_VALUES:
+            print value + " column does not exist, removing from output columns"
+            continue
+        temp_columns.append(value)
+
+    if not temp_columns:
+        print "None of the specified columns exists. Showing all data instead"
+
+    return temp_columns
+
+
 def main():
     args = initiate_argparse()
+    print ASCII_ART
 
     try:
         if args.config:
             f = open(args.config, 'r')
             config = json.load(f)
+            f.close()
 
             out_file_type = config['output']
             to_email = config['email_results']
             columns = config['columns']
+
             if columns:
-                columns = columns.split(',')
-                for i, value in enumerate(columns):
-                    columns[i] = value.strip()
+                columns = clean_columns(columns)
 
             dump_plugin_output.dump_plugin_data(config['plugin_id'], config['repo_list'], config['host_list'],
                                                 config['ip_range'], config['duplicates'], config['user'],
                                                 b64decode(config['pass']))
             process_dump.create_table(out_file_type, columns, config['search_list'])
-
         else:
             out_file_type = args.output
             to_email = args.email_results
-            columns = args.columns
-            if columns:
-                columns = columns.split(',')
-                for i, value in enumerate(columns):
-                    columns[i] = value.strip()
+
+            if args.columns:
+                columns = clean_columns(args.columns)
 
             dump_plugin_output.dump_plugin_data(args.plugin_id, args.repos, args.hosts, args.ip_range, args.duplicates,
                                                 '', '')
