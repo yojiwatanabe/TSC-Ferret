@@ -83,6 +83,26 @@ def searchable_mode(data, input_data, result_mat, is_html):
     return result_mat
 
 
+def get_plugin_info(data, html, columns=''):
+    if columns and 'plugin_info' not in map(lambda x: x.lower(), columns):
+        return
+
+    # Checks if the output is HTML, takes away HTML tags if not, uses alternative delimiter
+    if not html:
+        delimiter = ALT_DELIMITER
+    else:
+        delimiter = HTML_DELIMITER
+
+    plugin_info = []
+    for entry in data:
+        temp = ('ID: ' + entry['PLUGIN_ID']
+                + delimiter + 'Name: ' + entry['PLUGIN_NAME']
+                + delimiter + 'Severity: ' + entry['SEVERITY']).encode('utf-8')
+        plugin_info.append(temp)
+
+    return plugin_info
+
+
 # 		create_matrix()
 #
 # Creates and populates a table containing software information about desired software from given hosts
@@ -252,11 +272,28 @@ def make_host_frame(data, columns):
         columns_upper = list(set(i.upper() for i in columns))
         if 'CONTENT' in columns_upper:
             columns_upper.remove('CONTENT')
+
+        if 'PLUGIN_INFO' in columns_upper:
+            columns_upper.remove('PLUGIN_INFO')
+
         host_frame = pd.DataFrame(data, index=range(1, len(data) + 1), columns=columns_upper)
 
     else:
         host_frame = pd.DataFrame(data, index=range(1, len(data) + 1), columns=['Host Info:'])
     return host_frame
+
+
+# 		make_host_frame()
+#
+# Creates the pandas data frame to be converted into an HTML table. Sets up layout according to type of query
+# Input  - data: Numpy matrix with information to be listed in table
+#          input_data: list of strings that were queried in the plugin output
+# Output - String array with all of the hosts' information
+def make_plugin_frame(data):
+    if no_data(data):
+        return
+
+    return pd.DataFrame(data, index=range(1, len(data) + 1), columns=['Plugin Info:'])
 
 
 # 		write_to_html()
@@ -266,12 +303,13 @@ def make_host_frame(data, columns):
 #          input_data: List of programs to search for (if any)
 #          host_data: List with host information
 # Output - none, out to file
-def write_to_html(data, input_data, host_data, columns):
+def write_to_html(plugin_data, data, input_data, host_data, columns):
+    plugin_frame = make_plugin_frame(plugin_data)
     host_frame = make_host_frame(host_data, columns)
     data_frame = make_data_frame(data, input_data)
 
     pd.set_option('display.max_colwidth', -1)
-    full_frame = pd.concat([host_frame, data_frame], axis=1)
+    full_frame = pd.concat([plugin_frame, host_frame, data_frame], axis=1)
 
     full_frame.to_html(HTML_OUTPUT, escape=False)
 
@@ -285,11 +323,12 @@ def write_to_html(data, input_data, host_data, columns):
 #          input_data: List of programs to search for (if any)
 #          host_data: List with host information
 # Output - none, out to file
-def write_to_csv(data, input_data, host_data, columns):
+def write_to_csv(plugin_data, data, input_data, host_data, columns):
+    plugin_frame = make_plugin_frame(plugin_data)
     host_frame = make_host_frame(host_data, columns)
     data_frame = make_data_frame(data, input_data)
 
-    full_frame = pd.concat([host_frame, data_frame], axis=1)
+    full_frame = pd.concat([plugin_frame, host_frame, data_frame], axis=1)
     full_frame.to_csv(CSV_OUTPUT)
 
     return
@@ -302,8 +341,8 @@ def write_to_csv(data, input_data, host_data, columns):
 #          input_data: List of programs to search for (if any)
 #          host_data: List with host information
 # Output - none, out to file
-def write_to_pdf(data, input_data, host_data, columns):
-    write_to_html(data, input_data, host_data, columns)
+def write_to_pdf(plugin_data, data, input_data, host_data, columns):
+    write_to_html(plugin_data, data, input_data, host_data, columns)
     options = {
         'page-size'    : 'A4',
         'margin-top'   : '0.5in',
@@ -325,11 +364,12 @@ def write_to_pdf(data, input_data, host_data, columns):
 #          input_data: List of programs to search for
 #          host_data: List with host information
 # Output - none, out to file
-def write_to_json(data, input_data, host_data, columns):
+def write_to_json(plugin_data, data, input_data, host_data, columns):
+    plugin_frame = make_plugin_frame(plugin_data)
     host_frame = make_host_frame(host_data, columns)
     data_frame = make_data_frame(data, input_data)
 
-    full_frame = pd.concat([host_frame, data_frame], axis=1)
+    full_frame = pd.concat([plugin_frame, host_frame, data_frame], axis=1)
     full_frame.to_json(JSON_OUTPUT)
 
     return
@@ -350,6 +390,7 @@ def create_table(output_type, columns='', infile=''):
         input_data = read_input(infile)
 
     is_html = (output_type == 'html')
+    plugin_mat = get_plugin_info(data, is_html, columns)
     result_mat = create_matrix(data, input_data, is_html, columns)
     host_info = get_host_info(data, is_html, columns)
 
@@ -359,6 +400,6 @@ def create_table(output_type, columns='', infile=''):
                         3: write_to_json}
 
     # Call on correct function according to output type
-    output_functions[OUTPUT_TYPES.index(output_type)](result_mat, input_data, host_info, columns)
+    output_functions[OUTPUT_TYPES.index(output_type)](plugin_mat, result_mat, input_data, host_info, columns)
 
     return
