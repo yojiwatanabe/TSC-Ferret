@@ -124,10 +124,11 @@ def main():
 
             out_file_type = config['output']
             to_email = config['email_results']
-            columns = config['columns']
 
-            if columns:
+            if config['columns']:
                 columns = clean_columns(columns)
+            else:
+                columns = ''
 
             dump_plugin_output.dump_plugin_data(config['plugin_id'], config['repo_list'], config['host_list'],
                                                 config['ip_range'], config['duplicates'], config['user'],
@@ -139,6 +140,8 @@ def main():
 
             if args.columns:
                 columns = clean_columns(args.columns)
+            else:
+                columns = ''
 
             dump_plugin_output.dump_plugin_data(args.plugin_id, args.repos, args.hosts, args.ip_range, args.duplicates,
                                                 '', '')
