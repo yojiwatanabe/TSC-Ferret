@@ -39,13 +39,14 @@ def load_data():
     f = open(DUMP_FILE, 'r')
     raw_data = json.load(f)
     f.close()
+
     return raw_data
 
 
 # 		read_input()
 #
 # Function to load JSON information from a file stream
-# Input  - none
+# Input  - infile, string of input file to read
 # Output - Python dictionary with data
 def read_input(infile):
     f = open(infile, 'r')
@@ -59,7 +60,7 @@ def read_input(infile):
 # Input  - data : string list of plugin output data to search through
 #          input_data : string list of queries to look for in plugin data
 #          result_mat : numpy matrix where matching queries will be store
-#          csv: Boolean value of if output format is a CSV filed
+#          is_html: Boolean value of if output format is a html file
 # Output - numpy matrix with matching queries
 def searchable_mode(data, input_data, result_mat, is_html):
     # Checks if the output is a CSV or HTML, takes away HTML tags if CSV output
@@ -83,6 +84,13 @@ def searchable_mode(data, input_data, result_mat, is_html):
     return result_mat
 
 
+# 		get_plugin_info()
+#
+# Returns information on the plugin in a pd.to_html friendly format (string)
+# Input  - data: Dictionary array with plugin info
+#          html: Boolean value of if output format is a html file
+#          columns: string array with columns to be returned
+# Output - String array with all of the hosts' information
 def get_plugin_info(data, html, columns=''):
     if columns and 'plugin_info' not in map(lambda x: x.lower(), columns):
         return
@@ -108,7 +116,8 @@ def get_plugin_info(data, html, columns=''):
 # Creates and populates a table containing software information about desired software from given hosts
 # Input  - data: Host data dict object, dict with host IP, DNS, Repository, and Content
 #          input_data: List of programs to search for (optional for special query)
-#          html: Boolean value of if output format is a html file
+#          is_html: Boolean value of if output format is a html file
+#          columns: string array with columns to be returned
 # Output - Numpy matrix object, where each row represents a different host, and each column represents a different
 #          software. This means matrix elements at row row index [i] will have software information about the host with
 #          ID = i + 1. Elements along column [j] will be lists of the software on line number j + 1 in input_file.
@@ -146,7 +155,9 @@ def create_matrix(data, input_data, is_html, columns):
 # Returns information about a single host to be . Helper function to get_host_info
 # Input  - host_data: Dictionary array with host info like DNS, IP, and REPO
 #          delimiter: Delimiter to use between points of information, will change depending on if the output type is CSV
+#          columns: string array with columns to be returned
 # Output - String array with all of the hosts' information
+
 def dead_host_info(host, delimiter, columns):
     # Checks if output will be to CSV or HTML, adjusts start/end of host info field accordingly
     if delimiter != ALT_DELIMITER:
@@ -176,7 +187,7 @@ def dead_host_info(host, delimiter, columns):
 # Returns information on the host given column arguments. Returns only the host information requested. Helper function
 # to get_host_info().
 # Input  - host: dictionary with host info
-#        - columns: string array with columns to be returned
+#          columns: string array with columns to be returned
 # Output - string with the host information to be saved
 def specific_host_columns(host, columns):
     temp = []
@@ -194,7 +205,8 @@ def specific_host_columns(host, columns):
 #
 # Returns information on the host in a pd.to_html friendly format (string)
 # Input  - host_data: Dictionary array with host info like DNS, IP, and REPO
-#          csv: Boolean value of if output format is a CSV file
+#          html: Boolean value of if output format is a html file
+#          columns: List of strings, values to be filtered into the output file
 # Output - String array with all of the hosts' information
 def get_host_info(host_data, html, columns=''):
     # Checks if the output is HTML, takes away HTML tags if not, uses alternative delimiter
@@ -249,7 +261,7 @@ def make_data_frame(data, input_data):
 # Helper function used by make_host_frame() in case no host columns were specified in a columns argument. Checks if the
 # given list is empty, meaning specific_host_columns() has not saved any columns specific to the host.
 # Input  - to_check: the list of host information to
-# Output -
+# Output - Boolean, whether or not the list of lists passed in is empty
 def no_data(to_check):
     if to_check is None:
         return True
@@ -263,7 +275,7 @@ def no_data(to_check):
 #
 # Creates the pandas data frame to be converted into an HTML table. Sets up layout according to type of query
 # Input  - data: Numpy matrix with information to be listed in table
-#          input_data: list of strings that were queried in the plugin output
+#          columns: list of column values to filter in
 # Output - String array with all of the hosts' information
 def make_host_frame(data, columns):
     if columns and no_data(data):
@@ -283,12 +295,11 @@ def make_host_frame(data, columns):
     return host_frame
 
 
-# 		make_host_frame()
+# 		make_plugin_frame()
 #
-# Creates the pandas data frame to be converted into an HTML table. Sets up layout according to type of query
+# Creates the pandas data frame to be converted into an HTML table
 # Input  - data: Numpy matrix with information to be listed in table
-#          input_data: list of strings that were queried in the plugin output
-# Output - String array with all of the hosts' information
+# Output - String array with all of the plugin information
 def make_plugin_frame(data):
     if no_data(data):
         return
@@ -299,8 +310,9 @@ def make_plugin_frame(data):
 # 		write_to_html()
 #
 # Writes the given numpy matrix to a table in a HTML file
-# Input  - data: Plugin output data, pre-processed according to user input (search, repository/host filters)
-#          input_data: List of programs to search for (if any)
+# Input  - plugin_data: List of plugin information
+#          data: List of plugin output data, pre-processed according to user input (search, repository/host filters)
+#          input_data: List of words to search for (if any)
 #          host_data: List with host information
 # Output - none, out to file
 def write_to_html(plugin_data, data, input_data, host_data, columns):
