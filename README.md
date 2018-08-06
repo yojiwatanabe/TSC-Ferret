@@ -69,7 +69,13 @@ The user would then use `[-R REPO_LIST]` as an optional argument where `REPO_LIS
 For getting data based on IP addresses, user has two choices. One way is to make a text file (.txt) with one IP Address or one IP subnet per line (IPv4, IPv6, or CIDR). Then the user should use `[-H --host_list HOST_LIST]` as an optional argument where `HOST_LIST` is the text file name. Another way is to specify an IP subnet to query from the command line. The user can use `[-i --ip_range IP_RANGE]` as an optional argument where `IP_RANGE` is in the format `xxx.xxx.xxx.xxx/xx` without any spaces in the IP. The subnet should be in CIDR notation.
 
 #### Column Filter
-For filtering in only specific data, users can specify the columns to return. By default, the host's DNS, IP, and MAC address, repository, and last seen date. These columns can be specified by passing in a list of the desired data with the column argument.
+For filtering in only specific data, users can specify the columns to return. By default, the host's DNS, IP, and MAC address, repository, and last seen date is returned along with the plugin output. These columns can be specified by passing in a list of the desired data with the column argument. The columns that can be specified are:
+* DNS
+* IP
+* MAC
+* L_SEEN
+* REPO
+* CONTENT (Plugin output or search query output)
 
 For example. including `-c "DNS, MAC, L_SEEN, CONTENT"` with the program call will filter in only these datapoints, not returning the IP address and repository. Similarly, `-c CONTENT` will make the program only return the plugin output" 
 
