@@ -109,13 +109,17 @@ def dump_plugin_data(plugin_id, requested_repo_names, host_list, ip_range, allow
         exit(0)
 
     obj = []
-    temp_obj = {'ID': '', 'IP': '', 'DNS': '', 'REPO': '', 'CONTENT': []}
+    temp_obj = {'ID': '', 'PLUGIN_ID': '', 'PLUGIN_NAME': '', 'SEVERITY': '', 'IP': '', 'DNS': '', 'REPO': '',
+                'CONTENT': []}
 
     for case in output:
         if (allow_duplicates is False) and is_not_latest_scan(case[u'ip'], case[u'lastSeen'], obj):
             continue
 
         temp_obj['ID'] = obj.__len__()
+        temp_obj['PLUGIN_ID'] = case[u'pluginID']
+        temp_obj['PLUGIN_NAME'] = case[u'pluginName']
+        temp_obj['SEVERITY'] = case[u'severity'][u'name']
         temp_obj['IP'] = case[u'ip']
         temp_obj['MAC'] = case[u'macAddress']
         temp_obj['DNS'] = case[u'dnsName']
