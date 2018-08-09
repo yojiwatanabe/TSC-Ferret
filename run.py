@@ -64,7 +64,7 @@ def initiate_argparse():
                                                                 'repos.txt)')
     parser.add_argument('-H', '--host_list', dest='hosts', help='Input file for hosts to query (e.g. -H hosts.txt)')
     parser.add_argument('-i', '--ip_range', dest='ip_range', help='Range/CIDR of IPs from which to gather data (e.g. '
-                                                                  '-i 127.0.0.1-192.168.0.1 or -i 130.0.0.0/24)')
+                                                                  '-i 130.0.0.0/24)')
     parser.add_argument('-d', '--allow_duplicates', dest='duplicates', help='Change from default behavior of only '
                         'outputting latest scan results to show all results', default=False, action='store_true')
     parser.add_argument('-e', '--email_results', dest='email_results', help='Email results of TSC Ferret to the given '
