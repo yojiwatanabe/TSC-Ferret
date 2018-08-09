@@ -60,12 +60,11 @@ def initiate_argparse():
 
     parser.add_argument('-s', '--search_queries', dest='search_list', help='Input file for words to query output '
                                                                            '(e.g. -s queries.txt)')
-    parser.add_argument('-R', '--repo_list', dest='repos', help='Input file for repositories to query '
-                                                                '(e.g. -R repos.txt)')
-    parser.add_argument('-H', '--host_list', dest='hosts', help='Input file for hosts to query '
-                                                                '(e.g. -H hosts.txt)')
-    parser.add_argument('-i', '--ip_range', dest='ip_range', help='Range of IPs from which to gather data '
-                                                                  '(e.g. --ip_range 127.0.0.1-192.168.0.1)')
+    parser.add_argument('-R', '--repo_list', dest='repos', help='Input file for repositories to query (e.g. -R '
+                                                                'repos.txt)')
+    parser.add_argument('-H', '--host_list', dest='hosts', help='Input file for hosts to query (e.g. -H hosts.txt)')
+    parser.add_argument('-i', '--ip_range', dest='ip_range', help='Range/CIDR of IPs from which to gather data (e.g. '
+                                                                  '-i 127.0.0.1-192.168.0.1 or -i 130.0.0.0/24)')
     parser.add_argument('-d', '--allow_duplicates', dest='duplicates', help='Change from default behavior of only '
                         'outputting latest scan results to show all results', default=False, action='store_true')
     parser.add_argument('-e', '--email_results', dest='email_results', help='Email results of TSC Ferret to the given '
@@ -73,8 +72,8 @@ def initiate_argparse():
     parser.add_argument('-o', '--output_type', dest='output', help='Change from default html output to a csv, pdf,'
                         ' or json file', default='html')
     parser.add_argument('-c', '--columns', dest='columns', help='Specify data columns to be included in the output. '
-                                                                'Currently supports \'IP\', \'DNS\', \'Repository\', '
-                                                                '\'MAC\', \'L_SEEN\'')
+                                                                'Columns supported: \'IP\', \'DNS\', \'Repository\', '
+                                                                '\'MAC\', \'L_SEEN\', \'CONTENT\'')
 
     return parser.parse_args()
 
@@ -101,7 +100,8 @@ def clean_columns(in_columns):
     temp_columns = []
     for value in columns:
         value = value.strip()
-        if value.upper() not in process_dump.HOST_VALUES:
+        # If not a valid column to filter in
+        if value.upper() not in process_dump.HOST_VALUES + ['PLUGIN_INFO']:
             print value + " column does not exist, removing from output columns"
             continue
         temp_columns.append(value)
@@ -126,7 +126,7 @@ def main():
             to_email = config['email_results']
 
             if config['columns']:
-                columns = clean_columns(columns)
+                columns = clean_columns(config['columns'])
             else:
                 columns = ''
 
