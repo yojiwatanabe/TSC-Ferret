@@ -63,7 +63,7 @@ def initiate_argparse():
     parser.add_argument('-R', '--repo_list', dest='repos', help='Input file for repositories to query (e.g. -R '
                                                                 'repos.txt)')
     parser.add_argument('-H', '--host_list', dest='hosts', help='Input file for hosts to query (e.g. -H hosts.txt)')
-    parser.add_argument('-i', '--ip_range', dest='ip_range', help='Range/CIDR of IPs from which to gather data (e.g. '
+    parser.add_argument('-i', '--ip_range', dest='ip_range', help='CIDR of IPs from which to gather data (e.g. '
                                                                   '-i 130.0.0.0/24)')
     parser.add_argument('-d', '--allow_duplicates', dest='duplicates', help='Change from default behavior of only '
                         'outputting latest scan results to show all results', default=False, action='store_true')
